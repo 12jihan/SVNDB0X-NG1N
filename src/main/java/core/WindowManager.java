@@ -32,28 +32,28 @@ public class WindowManager {
     public void init() {
         GLFWErrorCallback.createPrint(System.err).set();
 
-        if(!GLFW.glfwInit()) {
+        if(!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW!");
         };
 
-        GLFW.glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GL_TRUE);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR,  3);
-        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR,  2);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
-        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
-        
-        boolean maximised = false;
-        if(width == 0 || height == 0) {
+        glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,  3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,  2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+        boolean maximized = true;
+        if (width == 0 || height == 0) {
             width = 100;
             height = 100;
-
-            GLFW.glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
-            maximised = true;
+            maximized = true;
+            
+            glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
         }
 
         window = glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
-        if(window == MemoryUtil.NULL ) {
+        if(window == MemoryUtil.NULL) {
             throw new RuntimeException("Failed to create GLFW window!");
         };
 
@@ -69,11 +69,11 @@ public class WindowManager {
             };
         });
 
-        if(maximised) {
-            glfwMaximizeWindow(window);
-        } else {
+        if(maximized)
+            GLFW.glfwMaximizeWindow(window);
+        else {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.width() - height) / 2); 
+            glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.width() - height) / 4);
 
             glfwMakeContextCurrent(window);
             if(isvSync()) {
@@ -127,7 +127,7 @@ public class WindowManager {
     public void setResize(boolean resize) {
         this.resize = resize;
     }
-    
+
     public boolean isvSync() {
         return vSync;
     }
@@ -153,7 +153,7 @@ public class WindowManager {
         float aspectRatio = (float) width / height;
         return projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
     }
-    
+
     public Matrix4f updateProjectionMatrix(Matrix4f matrix, int width, int height ) {
         float aspectRatio = (float) width / height;
         return matrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
