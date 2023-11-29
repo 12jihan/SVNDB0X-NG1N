@@ -21,5 +21,11 @@ public class Launcher
         window.cleanup();
     }
 
-    
+    public static WindowManager getWindow() {
+        return window;
+    }
+
+    public static void setWindow(WindowManager window) {
+        Launcher.window = window;
+    }
 }

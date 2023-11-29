@@ -4,21 +4,19 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "type": "java",
-        //     "name": "Current File",
-        //     "request": "launch",
-        //     "mainClass": "${file}",
-        //     "vmArgs": "-XstartOnFirstThread"
-        // },
+        {
+            "type": "java",
+            "name": "Launcher",
+            "request": "launch",
+            "mainClass": "core.Launcher",
+            "projectName": "sandbox"
+        },
         {
             "type": "java",
             "name": "App",
             "request": "launch",
             "mainClass": "core.App",
-            "projectName": "sandbox",
-            // "vmArgs": "-XstartOnFirstThread",
-            // "args": "-XstartOnFirstThread"
+            "projectName": "sandbox"
         }
     ]
 }
