@@ -18,7 +18,7 @@
             "mainClass": "core.App",
             "projectName": "sandbox",
             // "vmArgs": "-XstartOnFirstThread",
-            "args": "-XstartOnFirstThread"
+            // "args": "-XstartOnFirstThread"
         }
     ]
 }

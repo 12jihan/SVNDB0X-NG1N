@@ -2,8 +2,8 @@ package core;
 
 // import org.lwjgl.*;
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL.*;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
@@ -32,33 +32,28 @@ public class WindowManager {
     public void init() {
         GLFWErrorCallback.createPrint(System.err).set();
 
-        if(!glfwInit()) {
+        if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW!");
-        };
 
+        glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,  3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,  2);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-        /*
-         * TODO: Figure out why maximize isn't working?!?!?
-         */
-        boolean maximized = true;
+        boolean maximized = false;
         if (width == 0 || height == 0) {
             width = 100;
             height = 100;
-            maximized = true;
-            
             glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+            maximized = true;
         }
 
         window = glfwCreateWindow(width, height, title, MemoryUtil.NULL, MemoryUtil.NULL);
-        if(window == MemoryUtil.NULL) {
+        if (window == MemoryUtil.NULL)
             throw new RuntimeException("Failed to create GLFW window!");
-        };
 
         glfwSetFramebufferSizeCallback(window, (window, width, height) -> {
             this.width = width;
@@ -67,31 +62,33 @@ public class WindowManager {
         });
 
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-            if(key == GLFW_KEY_ESCAPE) {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true);
-            };
         });
 
-        if(maximized)
+        // Maximize Conditional Statement:
+        if (maximized)
             GLFW.glfwMaximizeWindow(window);
         else {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
             glfwSetWindowPos(window, (vidmode.width() - width) / 2, (vidmode.width() - height) / 4);
-
-            glfwMakeContextCurrent(window);
-            if(isvSync()) {
-                glfwSwapInterval(1);
-            };
-
-            glfwShowWindow(window);
-
-            GL.createCapabilities();
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_STENCIL_TEST);
-            glEnable(GL_CULL_FACE);
-            glEnable(GL_BACK);
         }
+
+        // Setting Context
+        glfwMakeContextCurrent(window);
+
+        if(isvSync())
+            glfwSwapInterval(1);
+
+        glfwShowWindow(window);
+
+        createCapabilities();
+
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BACK);
     }
 
     public void update() {
@@ -135,7 +132,6 @@ public class WindowManager {
         return vSync;
     }
 
-
     public int getWidth() {
         return width;
     }
@@ -157,7 +153,7 @@ public class WindowManager {
         return projectionMatrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
     }
 
-    public Matrix4f updateProjectionMatrix(Matrix4f matrix, int width, int height ) {
+    public Matrix4f updateProjectionMatrix(Matrix4f matrix, int width, int height) {
         float aspectRatio = (float) width / height;
         return matrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 

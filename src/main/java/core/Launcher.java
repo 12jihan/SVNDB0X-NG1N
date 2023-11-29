@@ -4,12 +4,14 @@ package core;
  * Hello world!
  *
  */
-public class App 
+public class Launcher 
 {
+    private static WindowManager window;
+
     public static void main( String[] args )
     {
         System.out.println( "Hello World!" );
-        WindowManager window = new WindowManager("Hello World Game!", 1280, 720, false);
+        window = new WindowManager("SVNDB0X NGIN", 0, 0, false);
         window.init();
 
         while(!window.windowShouldClose()) {
@@ -18,4 +20,6 @@ public class App
 
         window.cleanup();
     }
+
+    
 }
