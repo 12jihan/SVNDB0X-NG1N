@@ -43,6 +43,9 @@ public class WindowManager {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
+        /*
+         * TODO: Figure out why maximize isn't working?!?!?
+         */
         boolean maximized = true;
         if (width == 0 || height == 0) {
             width = 100;
