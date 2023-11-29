@@ -2,12 +2,12 @@ package core;
 
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
-
 import org.lwjgl.glfw.GLFWErrorCallback;
-
 import core.Utils.Consts;
+import test.Launcher;
 
 public class EngineManager {
+
     public static final long NANOSECOND = 1000000000L;
     public static final float FRAMERATE = 1000;
 
@@ -18,11 +18,14 @@ public class EngineManager {
 
     private WindowManager window;
     private GLFWErrorCallback errorCallback;
+    private ILogic gameLogic;
 
     private void init() throws Exception {
         glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
         window = Launcher.getWindow();
+        gameLogic = Launcher.getGame();
         window.init();
+        gameLogic.init();
     }
 
     public void start() throws Exception {
@@ -49,6 +52,7 @@ public class EngineManager {
             frameCounter += passedTime;
 
             // Input:
+            input();
 
             while (unprocessedTime > frametime) {
                 render = true;
@@ -60,7 +64,7 @@ public class EngineManager {
                 if (frameCounter >= NANOSECOND) {
 
                     setFps(frames);
-                    window.setTitle(Consts.TITLE + getFps());
+                    window.setTitle(Consts.TITLE + " " + getFps() + " fps");
                     frames = 0;
                     frameCounter = 0;
                 }
@@ -82,7 +86,7 @@ public class EngineManager {
     }
 
     private void input() {
-
+        gameLogic.render(); 
     }
 
     private void render() {
@@ -90,11 +94,12 @@ public class EngineManager {
     }
 
     private void update() {
-
+        gameLogic.update();
     }
 
     private void cleanup() {
         window.cleanup();
+        gameLogic.cleanup();
         errorCallback.free();
         glfwTerminate();
     }

@@ -8,14 +8,14 @@
             "type": "java",
             "name": "Launcher",
             "request": "launch",
-            "mainClass": "core.Launcher",
+            "mainClass": "test.Launcher",
             "projectName": "sandbox"
         },
         {
             "type": "java",
-            "name": "App",
+            "name": "Launcher",
             "request": "launch",
-            "mainClass": "core.App",
+            "mainClass": "core.Launcher",
             "projectName": "sandbox"
         }
     ]
