@@ -18,7 +18,7 @@ public class EngineManager {
 
     private WindowManager window;
     private GLFWErrorCallback errorCallback;
-    private ILogic gameLogic;
+    private ILogic gameLogic; 
 
     private void init() throws Exception {
         glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
@@ -62,7 +62,6 @@ public class EngineManager {
                     stop();
 
                 if (frameCounter >= NANOSECOND) {
-
                     setFps(frames);
                     window.setTitle(Consts.TITLE + " " + getFps() + " fps");
                     frames = 0;
@@ -86,10 +85,11 @@ public class EngineManager {
     }
 
     private void input() {
-        gameLogic.render(); 
+        gameLogic.input(); 
     }
 
     private void render() {
+        gameLogic.render();
         window.update();
     }
 

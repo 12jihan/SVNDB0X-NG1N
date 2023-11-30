@@ -15,7 +15,7 @@ public class RenderManager {
     }
 
     public void init() throws Exception {
-
+        
     }
 
     public void render() {
