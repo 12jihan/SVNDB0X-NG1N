@@ -2,6 +2,7 @@ package core.Utils;
 
 import java.io.InputStream;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
@@ -14,8 +15,8 @@ public class Util {
     return buffer;
   }
 
-  public static FloatBuffer storeDataInIntBuffer(int[] data) {
-    FloatBuffer buffer = MemoryUtil.memAllocFloat(data.length);
+  public static IntBuffer storeDataInIntBuffer(int[] data) {
+    IntBuffer buffer = MemoryUtil.memAllocInt(data.length);
     buffer.put(data).flip();
     return buffer;
   }
