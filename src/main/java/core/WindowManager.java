@@ -12,10 +12,11 @@ public class WindowManager {
     public static final float FOV = (float) Math.toRadians(60);
     public static final float Z_NEAR = 0.01f;
     public static final float Z_FAR = 1000f;
+    private static final boolean SYSCHECK = System.getProperty("os.name").contains("Mac");
 
     private final String title;
     private final Matrix4f projectionMatrix;
-
+    
     private int width, height;
     private long window;
 
@@ -40,8 +41,12 @@ public class WindowManager {
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        
+        // Used for mac compatibility
+        if(getSyscheck()) {
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        }
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         boolean maximized = false;
         if (width == 0 || height == 0) {
@@ -157,5 +162,9 @@ public class WindowManager {
         float aspectRatio = (float) width / height;
         return matrix.setPerspective(FOV, aspectRatio, Z_NEAR, Z_FAR);
 
+    }
+
+    public static boolean getSyscheck() {
+        return SYSCHECK;
     }
 }

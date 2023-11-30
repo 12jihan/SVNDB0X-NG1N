@@ -42,7 +42,7 @@ public class ShaderManager {
     public void link() throws Exception {
         glLinkProgram(programID);
 
-        if(glGetProgrami(programID, GL_LINK_STATUS) == 0)
+        if (glGetProgrami(programID, GL_LINK_STATUS) == 0)
             throw new Exception("Error linking shader code " + " Info " + glGetProgramInfoLog(programID, 1024));
 
         System.out.println("Checking vertex id:\n\t- " + vertexShaderID);
@@ -55,11 +55,15 @@ public class ShaderManager {
 
         glValidateProgram(programID);
         System.out.println("Program ID:\n\t- " + programID);
+        
         /*
-         * TODO: Figure out why the fuck this section is failing validation in the test statement, but renders fine when I remove it and compile the program...
+         * Turns out this doesn't work for mac.
          */
-        // if (glGetProgrami(programID, GL_VALIDATE_STATUS) == 0)
-        //     throw new Exception("\n\nUnable to validate shader code: \n\n\t" + glGetProgramInfoLog(programID, 1024));
+        if (!WindowManager.getSyscheck()) {
+            if (glGetProgrami(programID, GL_VALIDATE_STATUS) == 0)
+                throw new Exception(
+                        "\n\nUnable to validate shader code: \n\n\t" + glGetProgramInfoLog(programID, 1024));
+        }
     }
 
     public void bind() {
@@ -72,7 +76,7 @@ public class ShaderManager {
 
     public void cleanup() {
         unbind();
-        if(programID != 0)
+        if (programID != 0)
             glDeleteProgram(programID);
     }
 }
