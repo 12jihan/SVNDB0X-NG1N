@@ -15,13 +15,15 @@ import test.Launcher;
 public class RenderManager {
     
     private final WindowManager window;
+    private ShaderManager shader;
 
     public RenderManager() {
         window = Launcher.getWindow();
     }
 
     public void init() throws Exception {
-
+        shader = new ShaderManager();
+        shader.createVertexShader(null);
     }
 
     public void render(Model model) {

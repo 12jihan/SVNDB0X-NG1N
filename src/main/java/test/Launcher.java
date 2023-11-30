@@ -13,7 +13,7 @@ public class Launcher {
 
     public static void main(String[] args) {
         System.out.println("\n Hello SVNDB0X NGIN! \n");
-        window = new WindowManager("SVNDB0X NGIN", 640, 360, false);
+        window = new WindowManager("SVNDB0X NGIN", 1080, 720, false);
         game = new TestGame();
         EngineManager engine = new EngineManager();
         try {
