@@ -3,6 +3,7 @@ package core;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import org.lwjgl.glfw.GLFWErrorCallback;
+
 import core.Utils.Consts;
 import test.Launcher;
 
