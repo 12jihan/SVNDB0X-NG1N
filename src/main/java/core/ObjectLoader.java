@@ -15,7 +15,7 @@ public class ObjectLoader {
     private List<Integer> vaos = new ArrayList<>();
     private List<Integer> vbos = new ArrayList<>();
 
-    public Model loadModel(float[] vertices, int[] indices) {
+    public Model loadModel(float[] vertices, float[] textureCoords, int[] indices) {
         int id = createVAO();
         storeIndicesBuffer(indices);
         storeDataInAttribList(0, 3, vertices);
