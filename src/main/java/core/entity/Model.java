@@ -8,6 +8,7 @@ public class Model {
     public Model(int id, int vertexCount) {
         this.id = id;
         this.vertexCount = vertexCount;
+        // this.texture = texture;
     }
 
     public Model(int id, int vertexCount, Texture texture) {
@@ -28,6 +29,10 @@ public class Model {
 
     public int getVertexCount() {
         return vertexCount;
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 
     public void setTexture(Texture texture) {

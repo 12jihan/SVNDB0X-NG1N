@@ -5,6 +5,8 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -27,16 +29,26 @@ public class RenderManager {
         shader.createVertexShader(Util.loadResource("/shaders/vertex.vs"));
         shader.createFragmentShader(Util.loadResource("/shaders/fragment.fs"));
         shader.link();
+        shader.createUniform("textureSampler");
     }
 
     public void render(Model model) {
         clear();
         shader.bind();
+        shader.setUniform("texturesampler", 0);
+        
         glBindVertexArray(model.getId());
         glEnableVertexAttribArray(0);
-        glDrawArrays(GL_TRIANGLES, 0, model.getVertexCount());
+        glEnableVertexAttribArray(1);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, model.getTexture().getId());
+        glDrawElements(GL_TRIANGLES, model.getVertexCount(), GL_UNSIGNED_INT, 0);
+        
         glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
         glBindVertexArray(0);
+        
         shader.unbind();
     }
 
