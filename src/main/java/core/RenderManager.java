@@ -35,7 +35,7 @@ public class RenderManager {
     public void render(Model model) {
         clear();
         shader.bind();
-        shader.setUniform("texturesampler", 0);
+        shader.setUniform("textureSampler", 0);
         
         glBindVertexArray(model.getId());
         glEnableVertexAttribArray(0);

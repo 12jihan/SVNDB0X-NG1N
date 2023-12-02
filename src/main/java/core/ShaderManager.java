@@ -53,7 +53,6 @@ public class ShaderManager {
 
     public int createShader(String shaderCode, int shaderType) throws Exception {
         int shaderID = glCreateShader(shaderType);
-        System.out.println("Shader ID: \n\t- " + shaderID + "\n~~~~~~~~\n");
         if (shaderID == 0)
             throw new Exception("\nError creating shader:\n\t- Type: \n\t" + shaderType);
         glShaderSource(shaderID, shaderCode);
@@ -74,16 +73,12 @@ public class ShaderManager {
         if (glGetProgrami(programID, GL_LINK_STATUS) == 0)
             throw new Exception("Error linking shader code " + " Info " + glGetProgramInfoLog(programID, 1024));
 
-        System.out.println("Checking vertex id:\n\t- " + vertexShaderID);
-        System.out.println("Checking fragment id:\n\t- " + fragmentShaderID);
-
         if (vertexShaderID != 0)
             glDetachShader(programID, vertexShaderID);
         if (fragmentShaderID != 0)
             glDetachShader(programID, fragmentShaderID);
 
         glValidateProgram(programID);
-        System.out.println("Program ID:\n\t- " + programID);
         
         /*
          * Turns out this doesn't work for mac.

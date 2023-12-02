@@ -45,7 +45,7 @@ public class ObjectLoader {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
-            IntBuffer c = stack.mallocInt(1);
+            IntBuffer c = stack.mallocInt(1); 
 
             buffer = STBImage.stbi_load(filename, w, h, c, 4);
             if (buffer == null)

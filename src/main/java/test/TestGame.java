@@ -52,7 +52,7 @@ public class TestGame implements ILogic {
         };
 
         model = loader.loadModel(vertices, textureCoords, indices);
-        model.setTexture(new Texture(loader.loadTexture("textures/stone.png")));
+        model.setTexture(new Texture(loader.loadTexture("/Users/jareemhoff/dev/java/sandbox/src/main/java/resources/textures/blue_ice.png")));
     }
 
     @Override
