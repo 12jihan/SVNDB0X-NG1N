@@ -5,8 +5,11 @@ import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -28,20 +31,41 @@ public class ShaderManager {
 
     public void createUniform(String uniformName) throws Exception {
         int uniformLocation = glGetUniformLocation(programID, uniformName);
-        if (uniformLocation < 0) 
+        if (uniformLocation < 0)
             throw new Exception("Could not find uniform: \n " + uniformName);
         uniforms.put(uniformName, uniformLocation);
     }
 
+    // Begin -- Setting Uniforms:
+
     public void setUniform(String uniform_name, Matrix4f value) {
-        try(MemoryStack stack = MemoryStack.stackPush()) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
             glUniformMatrix4fv(uniforms.get(uniform_name), false, value.get(stack.mallocFloat(16)));
         }
+    }
+
+    public void setUniform(String uniform_name, Vector4f value) {
+        glUniform4f(uniforms.get(uniform_name), value.x, value.y, value.z, value.w);
+    }
+
+    public void setUniform(String uniform_name, Vector3f value) {
+        glUniform3f(uniforms.get(uniform_name), value.x, value.y, value.z);
+    }
+
+    public void setUniform(String uniform_name, boolean value) {
+        float res = value ? 1 : 0;
+        glUniform1f(uniforms.get(uniform_name), res);
     }
 
     public void setUniform(String uniform_name, int value) {
         glUniform1i(uniforms.get(uniform_name), value);
     }
+
+    public void setUniform(String uniform_name, float value) {
+        glUniform1f(uniforms.get(uniform_name), value);
+    }
+
+    // End -- Setting Uniforms:
 
     public void createVertexShader(String shaderCode) throws Exception {
         vertexShaderID = createShader(shaderCode, GL_VERTEX_SHADER);
@@ -79,10 +103,10 @@ public class ShaderManager {
             glDetachShader(programID, fragmentShaderID);
 
         glValidateProgram(programID);
-        
+
         /*
          * Turns out this doesn't work for mac.
-         * So this will turn this off when on a mac. 
+         * So this will turn this off when on a mac.
          */
         if (!WindowManager.getSyscheck()) {
             if (glGetProgrami(programID, GL_VALIDATE_STATUS) == 0)

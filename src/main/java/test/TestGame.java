@@ -4,14 +4,17 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.opengl.GL11.glViewport;
 
-import core.ILogic;
+import org.joml.Vector3f;
+
+import core.IAppLogic;
 import core.ObjectLoader;
 import core.RenderManager;
 import core.WindowManager;
+import core.entity.Entity;
 import core.entity.Model;
 import core.entity.Texture;
 
-public class TestGame implements ILogic {
+public class TestGame implements IAppLogic {
 
     private int direction = 0;
     private float color = 0.0f;
@@ -20,7 +23,7 @@ public class TestGame implements ILogic {
     private final ObjectLoader loader;
     private final WindowManager window;
 
-    private Model model;
+    private Entity entity;
 
     public TestGame() {
         renderer = new RenderManager();
@@ -51,8 +54,10 @@ public class TestGame implements ILogic {
                 1, 0, 
         };
 
-        model = loader.loadModel(vertices, textureCoords, indices);
-        model.setTexture(new Texture(loader.loadTexture("/Users/jareemhoff/dev/java/sandbox/src/main/java/resources/textures/blue_ice.png")));
+        Model model = loader.loadModel(vertices, textureCoords, indices);
+        model.setTexture(new Texture(loader.loadTexture("/Users/jareemhoff/dev/java/sandbox/src/main/java/resources/textures/grassblock.png")));
+
+        entity = new Entity(model, new Vector3f(1, 0, 0), new Vector3f(0, 0, 0), 1);
     }
 
     @Override
@@ -72,6 +77,10 @@ public class TestGame implements ILogic {
             color = 1.0f;
         else if (color <= 0.0f)
             color = 0.0f;
+
+        if (entity.getPos().x < -1.5f)
+            entity.getPos().x = 1.5f;
+        entity.getPos().x -= 0.01f;
     }
 
     @Override
@@ -81,8 +90,8 @@ public class TestGame implements ILogic {
             window.setResize(true);
         }
 
-        window.setClearColor(color, color, color, 0.0f);
-        renderer.render(model);
+        window.setClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        renderer.render(entity);
     }
 
     @Override

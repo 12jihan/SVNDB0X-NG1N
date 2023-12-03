@@ -19,7 +19,7 @@ public class EngineManager {
 
     private WindowManager window;
     private GLFWErrorCallback errorCallback;
-    private ILogic gameLogic; 
+    private IAppLogic gameLogic; 
 
     private void init() throws Exception {
         glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));

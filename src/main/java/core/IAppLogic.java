@@ -1,6 +1,6 @@
 package core;
 
-public interface ILogic {
+public interface IAppLogic {
 
     void init() throws Exception;
 

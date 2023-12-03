@@ -35,7 +35,7 @@ public class ObjectLoader {
         storeDataInAttribList(0, 3, vertices);
         storeDataInAttribList(1, 2, textureCoords);
         unbind();
-        return new Model(id, indices.length);
+        return new Model(id, vertices.length / 3);
     }
 
     public int loadTexture(String filename) throws Exception {
@@ -57,14 +57,11 @@ public class ObjectLoader {
 
         int id = glGenTextures();
         textures.add(id);
-
         glBindTexture(GL_TEXTURE_2D, id);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
         glGenerateMipmap(GL_TEXTURE_2D);
-
         STBImage.stbi_image_free(buffer);
-        
         return id;
     }
 
