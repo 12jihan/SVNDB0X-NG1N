@@ -8,6 +8,7 @@ import engine.graph.Render;
 import engine.scene.Scene;
 
 /**
+ * 
  * SVNDB0X NGIN
  *
  */
@@ -42,7 +43,8 @@ public class Main implements IAppLogic {
         };
 
         int[] indices = new int[] {
-                0, 1, 3, 3, 1, 2,
+                0, 1, 3,
+                3, 1, 2,
         };
 
         Mesh mesh = new Mesh(positions, colors, indices);
