@@ -15,8 +15,8 @@ public class SceneRender {
     public SceneRender() {
         List<ShaderProgram.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
         
-        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("/Users/jareemhoff/dev/java/sandbox/resources/shaders/scene.vert", GL_VERTEX_SHADER));
-        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("/Users/jareemhoff/dev/java/sandbox/resources/shaders/scene.frag", GL_FRAGMENT_SHADER));
+        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("src/resources/shaders/Scene.vert", GL_VERTEX_SHADER));
+        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("src/resources/shaders/Scene.frag", GL_FRAGMENT_SHADER));
         try {
             shaderProgram = new ShaderProgram(shaderModuleDataList);
         } catch (Exception e) {

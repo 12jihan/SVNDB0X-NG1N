@@ -26,10 +26,14 @@ public class Main implements IAppLogic {
     @Override
     public void init(Window window, Scene scene, Render render) throws Exception {
         float[] positions = new float[] {
-            0.0f, 0.5f, 0.0f,
+            -0.5f,  0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f,
-            0.0f, -0.5f, 0.0f,
+             0.5f,  0.5f, 0.0f,
+             0.5f,  0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
         };
+
         Mesh mesh = new Mesh(positions, 3);
         scene.addMesh("triangle", mesh);
     }
