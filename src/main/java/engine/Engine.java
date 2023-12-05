@@ -24,9 +24,20 @@ public class Engine {
         targetUps = opts.ups;
         this.appLogic = appLogic;
         render = new Render();
-        scene = new Scene();
+        scene = new Scene(window.getWidth(), window.getHeight());
         appLogic.init(window, scene, render);
         running = true;
+    }
+
+    private void cleanup() {
+        appLogic.cleanup();
+        render.cleanup();
+        scene.cleanup();
+        window.cleanup();
+    }
+
+    private void resize() {
+        scene.resize(window.getWidth(), window.getHeight());
     }
 
     private void run() {
@@ -62,17 +73,6 @@ public class Engine {
             initialTime = now;
         }
         cleanup();
-    } 
-
-    private void cleanup() {
-        appLogic.cleanup();
-        render.cleanup();
-        scene.cleanup();
-        window.cleanup();
-    }
-
-    private void resize() {
-
     }
 
     public void start() {

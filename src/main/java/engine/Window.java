@@ -38,7 +38,7 @@ public class Window {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         }
-
+        
         // Maximize Window Conditional Statement:
         if (opts.width > 0 && opts.height > 0) {
             this.width = opts.width;
@@ -141,8 +141,8 @@ public class Window {
     public static class WindowOptions {
         public boolean compatibleProfile;
         public int fps;
-        public int height;
+        public int height = 900;
         public int ups = Engine.TARGET_UPS;
-        public int width;
+        public int width = 1600;
     }
 }
