@@ -26,14 +26,16 @@ public class UniformsMap {
     }
 
     public void setUniform(String uniformName, Matrix4f value) {
-        // System.out.println("Setting uniform [" + uniformName + "] value [" + value + "]");
+        if (uniformName == "modelMatrix") {
+            System.out.println("Setting uniform [" + uniformName + "] value [" + value + "]");
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             Integer location = uniforms.get(uniformName);
             if (location == null) {
                 throw new RuntimeException(
                         "Could not find uniform [" + uniformName + "] in shader program [" + programId + "]");
             }
-            
+
             glUniformMatrix4fv(
                     location.intValue(),
                     false,
