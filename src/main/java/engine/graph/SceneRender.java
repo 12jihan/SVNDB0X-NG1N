@@ -31,9 +31,10 @@ public class SceneRender {
     public void render(Scene scene) {
         shaderProgram.bind();
 
+        System.out.println("\nMesh Data:\n"  );
         scene.getMeshMap().values().forEach(mesh -> {
             glBindVertexArray(mesh.getVaoId());
-            glDrawArrays(GL_TRIANGLES, 0, mesh.getNumVertices());
+            glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
         });
         glBindVertexArray(0);
 
