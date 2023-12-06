@@ -14,7 +14,7 @@ import org.pmw.tinylog.Logger;
 
 public class Window {
     
-    private static final String SYSCHECK = System.getProperty("os.name");
+    private static final boolean SYSCHECK = System.getProperty("os.name").contains("Mac");
     private final long windowHandle;
     private int width, height;
     private Callable<Void> resizeFunc;
@@ -134,7 +134,7 @@ public class Window {
         return glfwWindowShouldClose(windowHandle);
     }
 
-    public static String getSyscheck() {
+    public static boolean getSyscheck() {
         return SYSCHECK;
     }
 
