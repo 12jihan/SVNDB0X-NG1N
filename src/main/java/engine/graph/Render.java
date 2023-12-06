@@ -17,6 +17,7 @@ public class Render {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         sceneRender = new SceneRender();
         guiRender = new GuiRender(window);
     }
@@ -32,6 +33,7 @@ public class Render {
         glViewport(0, 0, window.getWidth(), window.getHeight());
 
         sceneRender.render(scene);
+        guiRender.render(scene);
     }
 
     public void resize(int width, int height) {

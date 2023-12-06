@@ -8,11 +8,11 @@ import java.util.*;
 
 public class Scene {
 
-    private Map<String, Model> modelMap;
-    private TextureCache textureCache;
-    private Projection projection;
-    private IGuiInstance guiInstance;
     private Camera camera;
+    private IGuiInstance guiInstance;
+    private Map<String, Model> modelMap;
+    private Projection projection;
+    private TextureCache textureCache;
 
 
     public Scene(int width, int height) {

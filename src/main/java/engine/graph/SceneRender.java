@@ -70,7 +70,6 @@ public class SceneRender {
                 }
             }
         }
-
         glBindVertexArray(0);
 
         shaderProgram.unbind();

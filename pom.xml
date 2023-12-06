@@ -27,10 +27,6 @@
       <name>Robotix's Public Maven</name>
       <url>https://maven.realrobotix.me/imgui-java</url>
     </repository>
-    <!-- <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository> -->
   </repositories>
 
   <profiles>
@@ -93,21 +89,11 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- <dependency>
-      <groupId>io.github.spair</groupId>
-      <artifactId>imgui-java-natives-macos</artifactId>
-      <version>1.86.11</version>
-    </dependency> -->
 
-    <!-- <dependency>
-      <groupId>io.github.spair</groupId>
-      <artifactId>imgui-java-binding</artifactId>
-      <version>1.86.11</version>
-    </dependency> -->
     <dependency>
       <groupId>io.github.spair</groupId>
       <artifactId>imgui-java-app</artifactId>
-      <version>1.86.11-8-g2fafd7a</version>
+      <version>1.86.11-10-g0dbf36c</version>
     </dependency>
 
     <dependency>
