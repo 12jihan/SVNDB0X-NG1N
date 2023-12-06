@@ -1,6 +1,7 @@
 package engine.graph;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 import java.util.*;
 
@@ -42,4 +43,9 @@ public class UniformsMap {
             glUniformMatrix4fv(getUniformLocation(uniformName), false, value.get(stack.mallocFloat(16)));
         }
     }
+
+    public void setUniform(String uniformName, Vector4f value) {
+        glUniform4f(getUniformLocation(uniformName), value.x, value.y, value.z, value.w);
+    }
+
 }
