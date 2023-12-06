@@ -4,6 +4,8 @@ import engine.scene.Entity;
 import engine.scene.Scene;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.util.*;
@@ -36,15 +38,18 @@ public class SceneRender {
         uniformsMap.createUniform("projectionMatrix");
         uniformsMap.createUniform("modelMatrix");
         uniformsMap.createUniform("txtSampler");
+        uniformsMap.createUniform("viewMatrix");
+
     }
 
     public void render(Scene scene) {
         shaderProgram.bind();
 
         uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
-
         uniformsMap.setUniform("txtSampler", 0);
-
+        uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
+        uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
+        
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
         for (Model model : models) {

@@ -18,10 +18,13 @@ public class Window {
     private final long windowHandle;
     private int width, height;
     private Callable<Void> resizeFunc;
+    private MouseInput mouseInput;
+
 
     public Window(String title, WindowOptions opts, Callable<Void> resizeFunc) {
         
         this.resizeFunc = resizeFunc;
+
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW!");
 
@@ -53,7 +56,7 @@ public class Window {
         windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
         if (windowHandle == NULL)
             throw new RuntimeException("Failed to create GLFW window!");
-
+        mouseInput = new MouseInput(windowHandle);
         glfwSetFramebufferSizeCallback(windowHandle, (window, w, h) -> resized(w, h));
 
         glfwSetErrorCallback((int errorCode, long msgPtr) -> Logger.error("Error code [{}], msg [{}]", errorCode,
@@ -92,6 +95,10 @@ public class Window {
 
     public int getWidth() {
         return width;
+    }
+
+    public MouseInput getMouseInput() {
+        return mouseInput;
     }
 
     public int getHeight() {

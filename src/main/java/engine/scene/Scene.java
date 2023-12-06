@@ -10,11 +10,14 @@ public class Scene {
     private Map<String, Model> modelMap;
     private TextureCache textureCache;
     private Projection projection;
+    private Camera camera;
+
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
         projection = new Projection(width, height);
         textureCache = new TextureCache();
+        camera = new Camera();
     }
 
     public void addEntity(Entity entity) {
@@ -24,6 +27,10 @@ public class Scene {
             throw new RuntimeException("Could not find model [" + modelId + "]");
         }
         model.getEntitiesList().add(entity);
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 
     public TextureCache getTextureCache() {
