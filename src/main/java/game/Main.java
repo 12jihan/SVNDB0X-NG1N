@@ -2,25 +2,22 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.joml.Vector2f;
-import org.joml.Vector4f;
 
 import engine.Engine;
 import engine.IAppLogic;
+import engine.IGuiInstance;
 import engine.MouseInput;
 import engine.Window;
-import engine.graph.Material;
-import engine.graph.Mesh;
 import engine.graph.Model;
 import engine.graph.Render;
-import engine.graph.Texture;
 import engine.scene.Camera;
 import engine.scene.Entity;
 import engine.scene.ModelLoader;
 import engine.scene.Scene;
+import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiCond;
 
 /**
  * 
@@ -28,12 +25,12 @@ import engine.scene.Scene;
  *               This is a Test sandbox engine for learning purposes.
  *               Uses LWJGL3 and OpenGL 3.2
  */
-public class Main implements IAppLogic {
+public class Main implements IAppLogic, IGuiInstance {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.005f;
     private Entity cubeEntity;
-    private Vector4f displInc = new Vector4f();
+    // private Vector4f displInc = new Vector4f();
     private float rotation;
 
     public static void main(String[] args) throws Exception {
@@ -59,7 +56,10 @@ public class Main implements IAppLogic {
     }
 
     @Override
-    public void input(Window window, Scene scene, long diffTimeMillis) {
+    public void input(Window window, Scene scene, long diffTimeMillis, boolean inputConsumed) {
+        if (inputConsumed) {
+            return;
+        }
         float move = diffTimeMillis * MOVEMENT_SPEED;
         Camera camera = scene.getCamera();
         if (window.isKeyPressed(GLFW_KEY_W)) {
@@ -84,6 +84,27 @@ public class Main implements IAppLogic {
             camera.addRotation((float) Math.toRadians(-displVec.x * MOUSE_SENSITIVITY),
                     (float) Math.toRadians(-displVec.y * MOUSE_SENSITIVITY));
         }
+    }
+
+    @Override
+    public void drawGui() {
+        ImGui.newFrame();
+        ImGui.setNextWindowPos(0, 0, ImGuiCond.Always);
+        ImGui.showDemoWindow();
+        ImGui.endFrame();
+        ImGui.render();
+    }
+
+    @Override
+    public boolean handleGuiInput(Scene scene, Window window) {
+        ImGuiIO imGuiIO = ImGui.getIO();
+        MouseInput mouseInput = window.getMouseInput();
+        Vector2f mousePos = mouseInput.getCurrentPos();
+        imGuiIO.setMousePos(mousePos.x, mousePos.y);
+        imGuiIO.setMouseDown(0, mouseInput.isLeftButtonPressed());
+        imGuiIO.setMouseDown(1, mouseInput.isRightButtonPressed());
+
+        return imGuiIO.getWantCaptureMouse() || imGuiIO.getWantCaptureKeyboard();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package engine.scene;
 
+import engine.IGuiInstance;
 import engine.graph.Model;
 import engine.graph.TextureCache;
 
@@ -10,6 +11,7 @@ public class Scene {
     private Map<String, Model> modelMap;
     private TextureCache textureCache;
     private Projection projection;
+    private IGuiInstance guiInstance;
     private Camera camera;
 
 
@@ -27,6 +29,14 @@ public class Scene {
             throw new RuntimeException("Could not find model [" + modelId + "]");
         }
         model.getEntitiesList().add(entity);
+    }
+
+    public IGuiInstance getGuiInstance() {
+        return guiInstance;
+    }
+
+    public void setGuiInstance(IGuiInstance guiInstance) {
+        this.guiInstance = guiInstance;
     }
 
     public Camera getCamera() {

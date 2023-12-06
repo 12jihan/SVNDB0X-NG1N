@@ -23,7 +23,7 @@ public class Engine {
         targetFps = opts.fps;
         targetUps = opts.ups;
         this.appLogic = appLogic;
-        render = new Render();
+        render = new Render(window);
         scene = new Scene(window.getWidth(), window.getHeight());
         appLogic.init(window, scene, render);
         running = true;
@@ -37,25 +37,32 @@ public class Engine {
     }
 
     private void resize() {
-        scene.resize(window.getWidth(), window.getHeight());
+        int width = window.getWidth();
+        int height = window.getHeight();
+        scene.resize(width, height);
+        render.resize(width, height);
     }
 
     private void run() {
         long initialTime = System.currentTimeMillis();
         float timeU = 1000.0f / targetUps;
-        float TimeR = targetFps > 0 ? 1000.0f / targetFps : 0;
+        float timeR = targetFps > 0 ? 1000.0f / targetFps : 0;
         float deltaUpdate = 0;
         float deltaFps = 0;
 
         long updateTime = initialTime;
+        IGuiInstance iGuiInstance = scene.getGuiInstance();
         while (running && !window.windowShouldClose()) {
             window.pollEvents();
+
             long now = System.currentTimeMillis();
-            deltaUpdate += (now - updateTime) / timeU;
-            deltaFps += (now - updateTime) / TimeR;
+            deltaUpdate += (now - initialTime) / timeU;
+            deltaFps += (now - initialTime) / timeR;
 
             if (targetFps <= 0 || deltaFps >= 1) {
-                appLogic.input(window, scene, now - initialTime);
+                window.getMouseInput().input();
+                boolean inputConsumed = iGuiInstance != null ? iGuiInstance.handleGuiInput(scene, window) : false;
+                appLogic.input(window, scene, now - initialTime, inputConsumed);
             }
 
             if (deltaUpdate >= 1) {
@@ -70,12 +77,6 @@ public class Engine {
                 deltaFps--;
                 window.update();
             }
-
-            if (targetFps <= 0 || deltaFps >= 1) {
-                window.getMouseInput().input();
-                appLogic.input(window, scene, now - initialTime);
-            }
-            
             initialTime = now;
         }
         cleanup();
