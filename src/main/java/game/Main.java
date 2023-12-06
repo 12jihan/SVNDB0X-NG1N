@@ -56,22 +56,6 @@ public class Main implements IAppLogic {
         cubeEntity = new Entity("cube-entity", cubeModel.getId());
         cubeEntity.setPosition(0, 0, -2);
         scene.addEntity(cubeEntity);
-
-        // Texture texture =
-        // scene.getTextureCache().createTexture("/Users/jareemhoff/dev/java/sandbox/resources/textures/cube.png");
-        // Material material = new Material();
-        // material.setTexturePath(texture.getTexturePath());
-        // List<Material> materialList = new ArrayList<>();
-        // materialList.add(material);
-
-        // Mesh mesh = new Mesh(positions, textCoords, indices);
-        // material.getMeshList().add(mesh);
-        // Model cubeModel = new Model("cube-model", materialList);
-        // scene.addModel(cubeModel);
-
-        // cubeEntity = new Entity("cube-entity", cubeModel.getId());
-        // cubeEntity.setPosition(0, 0, -2);
-        // scene.addEntity(cubeEntity);
     }
 
     @Override
