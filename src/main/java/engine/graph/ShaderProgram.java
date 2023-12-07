@@ -11,7 +11,6 @@ import java.util.*;
 public class ShaderProgram {
     private final int programId;
     
-
     public ShaderProgram(List<ShaderModuleData> shaderModuleDataList) throws Exception {
         programId = glCreateProgram();
         System.out.println("programId:\n" + programId);

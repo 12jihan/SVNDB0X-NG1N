@@ -2,36 +2,25 @@ package game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import org.joml.Vector2f;
-
-import engine.Engine;
-import engine.IAppLogic;
-import engine.IGuiInstance;
-import engine.MouseInput;
-import engine.Window;
-import engine.graph.Model;
-import engine.graph.Render;
-import engine.scene.Camera;
-import engine.scene.Entity;
-import engine.scene.ModelLoader;
-import engine.scene.Scene;
-import imgui.ImGui;
-import imgui.ImGuiIO;
-import imgui.flag.ImGuiCond;
-
+import org.joml.*;
+import engine.*;
+import engine.graph.*;
+import engine.scene.*;
+import engine.scene.lights.*;
+import java.lang.Math;
 /**
  * 
  * @SVNDB0X_NGIN
  *               This is a Test sandbox engine for learning purposes.
  *               Uses LWJGL3 and OpenGL 3.2
  */
-public class Main implements IAppLogic, IGuiInstance {
+public class Main implements IAppLogic {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.005f;
-    private Entity cubeEntity;
-    // private Vector4f displInc = new Vector4f();
-    private float rotation;
+    private static final int NUM_CHUNKS = 4;
+
+    private Entity[][] terrainEntities;
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
@@ -45,21 +34,40 @@ public class Main implements IAppLogic, IGuiInstance {
 
     @Override
     public void init(Window window, Scene scene, Render render) throws Exception {
-
-        Model cubeModel = ModelLoader.loadModel("cube-model", "/Users/jareemhoff/dev/java/sandbox/resources/textures/cube.obj",
+        /*
+         * Quad Model
+         */
+        String quadModelId = "quad-model";
+        Model quadModel = ModelLoader.loadModel("quad-model", "/Users/jareemhoff/dev/java/sandbox/resources/quad/quad.obj",
                 scene.getTextureCache());
-        scene.addModel(cubeModel);
+        scene.addModel(quadModel);
 
-        cubeEntity = new Entity("cube-entity", cubeModel.getId());
-        cubeEntity.setPosition(0, 0, -2);
-        scene.addEntity(cubeEntity);
+        int numRows = NUM_CHUNKS * 2 + 1;
+        int numCols = numRows;
+        terrainEntities = new Entity[numRows][numCols];
+        for (int j = 0; j < numRows; j++) {
+            for (int i = 0; i < numCols; i++) {
+                Entity entity = new Entity("TERRAIN_" + j + "_" + i, quadModelId);
+                terrainEntities[j][i] = entity;
+                scene.addEntity(entity);
+            }
+        }
+
+        SceneLights sceneLights = new SceneLights();
+        sceneLights.getAmbientLight().setIntensity(0.2f);
+        scene.setSceneLights(sceneLights);
+
+        SkyBox skyBox = new SkyBox("/Users/jareemhoff/dev/java/sandbox/resources/skybox/skybox.obj", scene.getTextureCache());
+        skyBox.getSkyBoxEntity().setScale(50);
+        scene.setSkyBox(skyBox);
+
+        scene.getCamera().moveUp(0.1f);
+
+        updateTerrain(scene);
     }
 
     @Override
     public void input(Window window, Scene scene, long diffTimeMillis, boolean inputConsumed) {
-        if (inputConsumed) {
-            return;
-        }
         float move = diffTimeMillis * MOVEMENT_SPEED;
         Camera camera = scene.getCamera();
         if (window.isKeyPressed(GLFW_KEY_W)) {
@@ -72,48 +80,40 @@ public class Main implements IAppLogic, IGuiInstance {
         } else if (window.isKeyPressed(GLFW_KEY_D)) {
             camera.moveRight(move);
         }
-        if (window.isKeyPressed(GLFW_KEY_UP)) {
-            camera.moveUp(move);
-        } else if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-            camera.moveDown(move);
-        }
 
         MouseInput mouseInput = window.getMouseInput();
         if (mouseInput.isRightButtonPressed()) {
             Vector2f displVec = mouseInput.getDisplVec();
-            camera.addRotation((float) Math.toRadians(-displVec.x * MOUSE_SENSITIVITY),
-                    (float) Math.toRadians(-displVec.y * MOUSE_SENSITIVITY));
+            camera.addRotation((float) Math.toRadians(-displVec.x * MOUSE_SENSITIVITY), (float) Math.toRadians(-displVec.y * MOUSE_SENSITIVITY));
         }
-    }
-
-    @Override
-    public void drawGui() {
-        ImGui.newFrame();
-        ImGui.setNextWindowPos(0, 0, ImGuiCond.Always);
-        ImGui.showDemoWindow();
-        ImGui.endFrame();
-        ImGui.render();
-    }
-
-    @Override
-    public boolean handleGuiInput(Scene scene, Window window) {
-        ImGuiIO imGuiIO = ImGui.getIO();
-        MouseInput mouseInput = window.getMouseInput();
-        Vector2f mousePos = mouseInput.getCurrentPos();
-        imGuiIO.setMousePos(mousePos.x, mousePos.y);
-        imGuiIO.setMouseDown(0, mouseInput.isLeftButtonPressed());
-        imGuiIO.setMouseDown(1, mouseInput.isRightButtonPressed());
-
-        return imGuiIO.getWantCaptureMouse() || imGuiIO.getWantCaptureKeyboard();
     }
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        rotation += 1.5;
-        if (rotation > 360) {
-            rotation = 0;
+        updateTerrain(scene);
+    }
+
+    public void updateTerrain(Scene scene) {
+        int cellSize = 10;
+        Camera camera = scene.getCamera();
+        Vector3f cameraPos = camera.getPosition();
+        int cellCol = (int) (cameraPos.x / cellSize);
+        int cellRow = (int) (cameraPos.z / cellSize);
+
+        int numRows = NUM_CHUNKS * 2 + 1;
+        int numCols = numRows;
+        int zOffset = -NUM_CHUNKS;
+        float scale = cellSize / 2.0f;
+        for (int j = 0; j < numRows; j++) {
+            int xOffset = -NUM_CHUNKS;
+            for (int i = 0; i < numCols; i++) {
+                Entity entity = terrainEntities[j][i];
+                entity.setScale(scale);
+                entity.setPosition((cellCol + xOffset) * 2.0f, 0, (cellRow + zOffset) * 2.0f);
+                entity.getModelMatrix().identity().scale(scale).translate(entity.getPosition());
+                xOffset++;
+            }
+            zOffset++;
         }
-        cubeEntity.setRotation(1, 1, 1, (float) Math.toRadians(rotation));
-        cubeEntity.updateModelMatrix();
     }
 }

@@ -3,6 +3,7 @@ package engine.scene;
 import engine.IGuiInstance;
 import engine.graph.Model;
 import engine.graph.TextureCache;
+import engine.scene.lights.SceneLights;
 
 import java.util.*;
 
@@ -13,7 +14,8 @@ public class Scene {
     private Map<String, Model> modelMap;
     private Projection projection;
     private TextureCache textureCache;
-
+    private SceneLights sceneLights;
+    private SkyBox skyBox;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
@@ -47,6 +49,14 @@ public class Scene {
         return textureCache;
     }
 
+    public SceneLights getSceneLights() {
+        return sceneLights;
+    }
+
+    public void setSceneLights(SceneLights sceneLights) {
+        this.sceneLights = sceneLights;
+    }
+
     public void addModel(Model model) {
         modelMap.put(model.getId(), model);
     }
@@ -57,6 +67,14 @@ public class Scene {
 
     public Map<String, Model> getModelMap() {
         return modelMap;
+    }
+
+    public void setSkyBox(SkyBox skyBox) {
+        this.skyBox = skyBox;
+    }
+    
+    public SkyBox getSkyBox() {
+        return skyBox;
     }
 
     public Projection getProjection() {
