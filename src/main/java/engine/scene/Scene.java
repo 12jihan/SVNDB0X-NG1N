@@ -16,12 +16,14 @@ public class Scene {
     private TextureCache textureCache;
     private SceneLights sceneLights;
     private SkyBox skyBox;
+    private Fog fog;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();
         projection = new Projection(width, height);
         textureCache = new TextureCache();
         camera = new Camera();
+        fog = new Fog();
     }
 
     public void addEntity(Entity entity) {
@@ -69,6 +71,14 @@ public class Scene {
         return modelMap;
     }
 
+    public Fog getFog() {
+        return fog;
+    }
+
+    public void setFog(Fog fog) {
+        this.fog = fog;
+    }    
+    
     public void setSkyBox(SkyBox skyBox) {
         this.skyBox = skyBox;
     }
@@ -84,5 +94,4 @@ public class Scene {
     public void resize(int width, int height) {
         projection.updateProjMatrix(width, height);
     }
-
 }

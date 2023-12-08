@@ -29,6 +29,7 @@ public class ModelLoader {
 
     public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, int flags) {
         File file = new File(modelPath);
+        System.out.println(file);
         if (!file.exists()) {
             throw new RuntimeException("Model path does not exist [" + modelPath + "]");
         }

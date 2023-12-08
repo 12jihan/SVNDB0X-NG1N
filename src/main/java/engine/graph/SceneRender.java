@@ -1,6 +1,7 @@
 package engine.graph;
 
 import engine.scene.Entity;
+import engine.scene.Fog;
 import engine.scene.Scene;
 import engine.scene.lights.AmbientLight;
 import engine.scene.lights.DirLight;
@@ -11,6 +12,8 @@ import engine.scene.lights.SpotLight;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL14.GL_FUNC_ADD;
+import static org.lwjgl.opengl.GL14.glBlendEquation;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.util.*;
@@ -137,7 +140,6 @@ public class SceneRender {
         uniformsMap.createUniform("modelMatrix");
         uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("viewMatrix");
-        uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.ambient");
         uniformsMap.createUniform("material.diffuse");
         uniformsMap.createUniform("material.specular");
@@ -169,16 +171,30 @@ public class SceneRender {
         uniformsMap.createUniform("dirLight.color");
         uniformsMap.createUniform("dirLight.direction");
         uniformsMap.createUniform("dirLight.intensity");
+
+        uniformsMap.createUniform("fog.activeFog");
+        uniformsMap.createUniform("fog.color");
+        uniformsMap.createUniform("fog.density");
     }
 
     public void render(Scene scene) {
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         shaderProgram.bind();
-        updateLights(scene);
 
         uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
-        uniformsMap.setUniform("txtSampler", 0);
-        uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
         uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
+
+        uniformsMap.setUniform("txtSampler", 0);
+
+        updateLights(scene);
+
+
+        Fog fog = scene.getFog();
+        uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
+        uniformsMap.setUniform("fog.color", fog.getColor());
+        uniformsMap.setUniform("fog.density", fog.getDensity());
 
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
@@ -203,8 +219,10 @@ public class SceneRender {
                 }
             }
         }
+        
         glBindVertexArray(0);
 
         shaderProgram.unbind();
+        glDisable(GL_BLEND);
     }
 }

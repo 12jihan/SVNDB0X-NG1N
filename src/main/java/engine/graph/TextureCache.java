@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class TextureCache {
 
-    public static final String DEFAULT_TEXTURE = "/Users/jareemhoff/dev/java/sandbox/resources/textures/cube.png";
+    public static final String DEFAULT_TEXTURE = "/Users/jareemhoff/dev/java/sandbox/resources/textures/cube/cube.png";
 
     private Map<String, Texture> textureMap;
 
