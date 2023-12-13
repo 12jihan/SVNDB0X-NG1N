@@ -19,8 +19,8 @@ public class UniformsMap {
     public void createUniform(String uniformName) {
         int uniformLocation = glGetUniformLocation(programId, uniformName);
         if (uniformLocation < 0) {
-            throw new RuntimeException("Could not find uniform [" + uniformName + "] in shader program [" +
-                    programId + "]");
+            throw new RuntimeException("\n\nCould not find uniform/'s [\n" + uniformName + "\n]\n in shader program [\n" +
+                    programId + "\n]");
         }
         uniforms.put(uniformName, uniformLocation);
     }
@@ -47,6 +47,10 @@ public class UniformsMap {
         glUniform1f(getUniformLocation(uniformName), value);
     }
 
+    public void setUniform(String uniformName, Vector2f value) {
+        glUniform2f(getUniformLocation(uniformName), value.x, value.y);
+    }
+
     public void setUniform(String uniformName, Vector3f value) {
         glUniform3f(getUniformLocation(uniformName), value.x, value.y, value.z);
     }
@@ -55,8 +59,5 @@ public class UniformsMap {
         glUniform4f(getUniformLocation(uniformName), value.x, value.y, value.z, value.w);
     }
 
-    public void setUniform(String uniformName, Vector2f value) {
-        glUniform2f(getUniformLocation(uniformName), value.x, value.y);
-    }
 
 }

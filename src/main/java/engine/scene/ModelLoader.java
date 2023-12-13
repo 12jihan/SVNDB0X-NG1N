@@ -17,27 +17,28 @@ public class ModelLoader {
     private ModelLoader() {
         // Utility class
     }
-
+    
     public static Model loadModel(String modelId, String modelPath, TextureCache textureCache) {
         return loadModel(modelId, modelPath, textureCache,
-                aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
-                        aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace
-                        | aiProcess_LimitBoneWeights |
-                        aiProcess_PreTransformVertices);
-
+        aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices |
+        aiProcess_Triangulate | aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace
+        | aiProcess_LimitBoneWeights |
+        aiProcess_PreTransformVertices);
+        
     }
-
+    
     public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, int flags) {
+        System.out.println("Loading Texture From File Path/s:\n");
         File file = new File(modelPath);
         System.out.println(file);
         if (!file.exists()) {
-            throw new RuntimeException("Model path does not exist [" + modelPath + "]");
+            throw new RuntimeException("Model path does not exist [\n\t modelPath:" + modelPath + "\n]\n\n");
         }
         String modelDir = file.getParent();
 
         AIScene aiScene = aiImportFile(modelPath, flags);
         if (aiScene == null) {
-            throw new RuntimeException("Error loading model [modelPath: " + modelPath + "]");
+            throw new RuntimeException("Error loading model [\n\t modelPath: " + modelPath + "\n]\n\n");
         }
 
         int numMaterials = aiScene.mNumMaterials();
@@ -75,20 +76,17 @@ public class ModelLoader {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             AIColor4D color = AIColor4D.create();
 
-            int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0,
-                    color);
+            int result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, aiTextureType_NONE, 0, color);
             if (result == aiReturn_SUCCESS) {
                 material.setAmbientColor(new Vector4f(color.r(), color.g(), color.b(), color.a()));
             }
 
-            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0,
-                    color);
+            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, color);
             if (result == aiReturn_SUCCESS) {
                 material.setDiffuseColor(new Vector4f(color.r(), color.g(), color.b(), color.a()));
             }
 
-            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0,
-                    color);
+            result = aiGetMaterialColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, color);
             if (result == aiReturn_SUCCESS) {
                 material.setSpecularColor(new Vector4f(color.r(), color.g(), color.b(), color.a()));
             }

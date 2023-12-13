@@ -61,7 +61,8 @@ public class Main implements IAppLogic {
         skyBox.getSkyBoxEntity().setScale(50);
         scene.setSkyBox(skyBox);
         
-        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 1f));
+        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.09f), 1f));
+        
         
         lightControls = new LightControls(scene);
         scene.setGuiInstance(lightControls);
