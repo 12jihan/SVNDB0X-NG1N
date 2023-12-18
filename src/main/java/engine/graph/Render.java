@@ -1,6 +1,7 @@
 package engine.graph;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 
 import org.lwjgl.opengl.GL;
 
@@ -16,9 +17,11 @@ public class Render {
 
     public Render(Window window) throws Exception {
         GL.createCapabilities();
+        glEnable(GL_MULTISAMPLE);
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
+        // glEnable(GL_CULL_FACE);
+        // glCullFace(GL_BACK);
+
         sceneRender = new SceneRender();
         guiRender = new GuiRender(window);
         skyBoxRender = new SkyBoxRender();

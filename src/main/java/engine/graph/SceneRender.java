@@ -11,6 +11,7 @@ import engine.scene.lights.SpotLight;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL14.GL_FUNC_ADD;
 import static org.lwjgl.opengl.GL14.glBlendEquation;
@@ -27,12 +28,12 @@ import static org.lwjgl.opengl.GL30.*;
 public class SceneRender {
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
+
     private ShaderProgram shaderProgram;
     private UniformsMap uniformsMap;
 
     public SceneRender() {
         List<ShaderProgram.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
-
         shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
                 "/Users/jareemhoff/dev/java/sandbox/resources/shaders/Scene.vert", GL_VERTEX_SHADER));
         shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
@@ -43,6 +44,116 @@ public class SceneRender {
             e.printStackTrace();
         }
         createUniforms();
+    }
+
+    public void cleanup() {
+        shaderProgram.cleanup();
+    }
+
+    public void createUniforms() {
+        uniformsMap = new UniformsMap(shaderProgram.getProgramId());
+        uniformsMap.createUniform("projectionMatrix");
+        uniformsMap.createUniform("modelMatrix");
+        uniformsMap.createUniform("viewMatrix");
+        uniformsMap.createUniform("txtSampler");
+        uniformsMap.createUniform("normalSampler");
+        uniformsMap.createUniform("material.ambient");
+        uniformsMap.createUniform("material.diffuse");
+        uniformsMap.createUniform("material.specular");
+        uniformsMap.createUniform("material.reflectance");
+        uniformsMap.createUniform("material.hasNormalMap");
+        uniformsMap.createUniform("ambientLight.factor");
+        uniformsMap.createUniform("ambientLight.color");
+
+        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+            String name = "pointLights[" + i + "]";
+            uniformsMap.createUniform(name + ".position");
+            uniformsMap.createUniform(name + ".color");
+            uniformsMap.createUniform(name + ".intensity");
+            uniformsMap.createUniform(name + ".att.constant");
+            uniformsMap.createUniform(name + ".att.linear");
+            uniformsMap.createUniform(name + ".att.exponent");
+        }
+
+        for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
+            String name = "spotLights[" + i + "]";
+            uniformsMap.createUniform(name + ".pl.position");
+            uniformsMap.createUniform(name + ".pl.color");
+            uniformsMap.createUniform(name + ".pl.intensity");
+            uniformsMap.createUniform(name + ".pl.att.constant");
+            uniformsMap.createUniform(name + ".pl.att.linear");
+            uniformsMap.createUniform(name + ".pl.att.exponent");
+            uniformsMap.createUniform(name + ".conedir");
+            uniformsMap.createUniform(name + ".cutoff");
+        }
+
+        uniformsMap.createUniform("dirLight.color");
+        uniformsMap.createUniform("dirLight.direction");
+        uniformsMap.createUniform("dirLight.intensity");
+
+        uniformsMap.createUniform("fog.activeFog");
+        uniformsMap.createUniform("fog.color");
+        uniformsMap.createUniform("fog.density");
+    }
+
+    public void render(Scene scene) {
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        shaderProgram.bind();
+
+        uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
+        uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
+
+        uniformsMap.setUniform("txtSampler", 0);
+        uniformsMap.setUniform("normalSampler", 1);
+
+        updateLights(scene);
+
+        Fog fog = scene.getFog();
+        uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
+        uniformsMap.setUniform("fog.color", fog.getColor());
+        uniformsMap.setUniform("fog.density", fog.getDensity());
+
+        Collection<Model> models = scene.getModelMap().values();
+        TextureCache textureCache = scene.getTextureCache();
+        for (Model model : models) {
+            List<Entity> entities = model.getEntitiesList();
+
+            for (Material material : model.getMaterialList()) {
+                uniformsMap.setUniform("material.ambient", material.getAmbientColor());
+                uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
+                uniformsMap.setUniform("material.specular", material.getSpecularColor());
+                uniformsMap.setUniform("material.reflectance", material.getReflectance());
+                // Normal map path:
+                String normalMapPath = material.getNormalMapPath();
+                boolean hasNormalMapPath = normalMapPath != null;
+                uniformsMap.setUniform("material.hasNormalMap", hasNormalMapPath ? 1 : 0);
+                
+                // Getting the texture:
+                Texture texture = textureCache.getTexture(material.getTexturePath());
+                glActiveTexture(GL_TEXTURE0);
+                texture.bind();
+                if (hasNormalMapPath) {
+                    Texture normalMapTexture = textureCache.getTexture(normalMapPath);
+                    glActiveTexture(GL_TEXTURE1);
+                    normalMapTexture.bind();
+                }
+                for (Mesh mesh : material.getMeshList()) {
+                    glBindVertexArray(mesh.getVaoId());
+
+                    for (Entity entity : entities) {
+                        uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
+                        glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
+                    }
+                }
+            }
+        }
+
+        glBindVertexArray(0);
+
+        shaderProgram.unbind();
+        glDisable(GL_BLEND);
     }
 
     private void updateLights(Scene scene) {
@@ -92,6 +203,7 @@ public class SceneRender {
         Vector4f aux = new Vector4f();
         Vector3f lightPosition = new Vector3f();
         Vector3f color = new Vector3f();
+
         float intensity = 0.0f;
         float constant = 0.0f;
         float linear = 0.0f;
@@ -130,99 +242,4 @@ public class SceneRender {
         updatePointLight(pointLight, prefix + ".pl", viewMatrix);
     }
 
-    public void cleanup() {
-        shaderProgram.cleanup();
-    }
-
-    public void createUniforms() {
-        uniformsMap = new UniformsMap(shaderProgram.getProgramId());
-        uniformsMap.createUniform("projectionMatrix");
-        uniformsMap.createUniform("modelMatrix");
-        uniformsMap.createUniform("txtSampler");
-        uniformsMap.createUniform("viewMatrix");
-        uniformsMap.createUniform("material.ambient");
-        uniformsMap.createUniform("material.diffuse");
-        uniformsMap.createUniform("material.specular");
-        uniformsMap.createUniform("material.reflectance");
-        uniformsMap.createUniform("ambientLight.factor");
-        uniformsMap.createUniform("ambientLight.color");
-
-        for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-            String name = "pointLights[" + i + "]";
-            uniformsMap.createUniform(name + ".position");
-            uniformsMap.createUniform(name + ".color");
-            uniformsMap.createUniform(name + ".intensity");
-            uniformsMap.createUniform(name + ".att.constant");
-            uniformsMap.createUniform(name + ".att.linear");
-            uniformsMap.createUniform(name + ".att.exponent");
-        }
-        for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
-            String name = "spotLights[" + i + "]";
-            uniformsMap.createUniform(name + ".pl.position");
-            uniformsMap.createUniform(name + ".pl.color");
-            uniformsMap.createUniform(name + ".pl.intensity");
-            uniformsMap.createUniform(name + ".pl.att.constant");
-            uniformsMap.createUniform(name + ".pl.att.linear");
-            uniformsMap.createUniform(name + ".pl.att.exponent");
-            uniformsMap.createUniform(name + ".conedir");
-            uniformsMap.createUniform(name + ".cutoff");
-        }
-
-        uniformsMap.createUniform("dirLight.color");
-        uniformsMap.createUniform("dirLight.direction");
-        uniformsMap.createUniform("dirLight.intensity");
-
-        uniformsMap.createUniform("fog.activeFog");
-        uniformsMap.createUniform("fog.color");
-        uniformsMap.createUniform("fog.density");
-    }
-
-    public void render(Scene scene) {
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        shaderProgram.bind();
-
-        uniformsMap.setUniform("projectionMatrix", scene.getProjection().getProjMatrix());
-        uniformsMap.setUniform("viewMatrix", scene.getCamera().getViewMatrix());
-
-        uniformsMap.setUniform("txtSampler", 0);
-
-        updateLights(scene);
-
-
-        Fog fog = scene.getFog();
-        uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
-        uniformsMap.setUniform("fog.color", fog.getColor());
-        uniformsMap.setUniform("fog.density", fog.getDensity());
-
-        Collection<Model> models = scene.getModelMap().values();
-        TextureCache textureCache = scene.getTextureCache();
-        for (Model model : models) {
-            List<Entity> entities = model.getEntitiesList();
-
-            for (Material material : model.getMaterialList()) {
-                uniformsMap.setUniform("material.ambient", material.getAmbientColor());
-                uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
-                uniformsMap.setUniform("material.specular", material.getSpecularColor());
-                uniformsMap.setUniform("material.reflectance", material.getReflectance());
-                Texture texture = textureCache.getTexture(material.getTexturePath());
-                glActiveTexture(GL_TEXTURE0);
-                texture.bind();
-
-                for (Mesh mesh : material.getMeshList()) {
-                    glBindVertexArray(mesh.getVaoId());
-                    for (Entity entity : entities) {
-                        uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
-                        glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
-                    }
-                }
-            }
-        }
-        
-        glBindVertexArray(0);
-
-        shaderProgram.unbind();
-        glDisable(GL_BLEND);
-    }
 }

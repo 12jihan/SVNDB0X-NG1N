@@ -10,6 +10,7 @@ public class Material {
     private List<Mesh> meshList;
     private Vector4f ambientColor;
     private String texturePath;
+    private String normalMapPath;
     private float reflectance;
     private Vector4f specularColor;
     private Vector4f diffuseColor;
@@ -86,4 +87,16 @@ public class Material {
     public Vector4f getDiffuseColor() {
         return diffuseColor;
     }
+
+    /*
+     * Normal Map is a texture that stores a normal at each pixel.
+     */
+     public String getNormalMapPath() {
+        return normalMapPath;
+    }
+    
+    public void setNormalMapPath(String normalMapPath) {
+        this.normalMapPath = normalMapPath;
+    }
+
 }

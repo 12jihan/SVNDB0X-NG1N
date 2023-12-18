@@ -4,6 +4,8 @@ const int MAX_POINT_LIGHTS = 5;
 const int MAX_SPOT_LIGHTS = 5;
 const float SPECULAR_POWER = 10;
 
+in vec3 outTangent;
+in vec3 outBitangent;
 in vec3 outPosition;
 in vec3 outNormal;
 in vec2 outTextCoord;
@@ -22,6 +24,7 @@ struct Material
     vec4 diffuse;
     vec4 specular;
     float reflectance;
+    int hasNormalMap;
 };
 struct AmbientLight
 {
@@ -53,6 +56,7 @@ struct Fog
     float density;
 };
 
+uniform sampler2D normalSampler;
 uniform sampler2D txtSampler;
 uniform Material material;
 uniform AmbientLight ambientLight;
@@ -132,27 +136,42 @@ vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirLight dirLight
     return vec4(resultColor.xyz, color.w);
 }
 
+// Calculation of the Normal.
+vec3 calcNormal(vec3 normal, vec3 tangent, vec3 bitangent, vec2 textCoords) {
+    mat3 TBN = mat3(tangent, bitangent, normal);
+    vec3 newNormal = texture(normalSampler, textCoords).rgb;
+    newNormal = normalize(newNormal * 2.0 - 1.0);
+    newNormal = normalize(TBN * newNormal);
+    return newNormal;
+}
+
 void main()
 {
     vec4 text_color = texture(txtSampler, outTextCoord);
     vec4 ambient = calcAmbient(ambientLight, text_color + material.ambient);
     vec4 diffuse = text_color + material.diffuse;
     vec4 specular = text_color + material.specular;
+    
+    vec3 normal = outNormal;
+    if (material.hasNormalMap > 0) {
+        normal = calcNormal(outNormal, outTangent, outBitangent, outTextCoord);
+    }
 
-    vec4 diffuseSpecularComp = calcDirLight(diffuse, specular, dirLight, outPosition, outNormal);
-
-    for (int i=0; i<MAX_POINT_LIGHTS; i++) {
+    vec4 diffuseSpecularComp = calcDirLight(diffuse, specular, dirLight, outPosition, normal);
+    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         if (pointLights[i].intensity > 0) {
-            diffuseSpecularComp += calcPointLight(diffuse, specular, pointLights[i], outPosition, outNormal);
+            diffuseSpecularComp += calcPointLight(diffuse, specular, pointLights[i], outPosition, normal);
         }
     }
 
-    for (int i=0; i<MAX_SPOT_LIGHTS; i++) {
+    for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
         if (spotLights[i].pl.intensity > 0) {
-            diffuseSpecularComp += calcSpotLight(diffuse, specular, spotLights[i], outPosition, outNormal);
+            diffuseSpecularComp += calcSpotLight(diffuse, specular, spotLights[i], outPosition, normal);
         }
     }
+
     fragColor = ambient + diffuseSpecularComp;
+    
     if (fog.activeFog == 1) {
         fragColor = calcFog(outPosition, fragColor, fog, ambientLight.color, dirLight);
     }
