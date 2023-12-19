@@ -17,10 +17,21 @@ terraEntity.updateModelMatrix();
 scene.addEntity(yourEntity);
 
 ```
+## Currently Broken:
+- ImGui is currently not working correctly when I load certain instances.
+- Lights still need to be fully fleshed out.
+- Skybox only works with the sample Skybox model from the tutorial.
+- I still need to implement animations fully.
+- Perlin noise with terrain generation isn't functioning at the moment.
+- I'm still determining the current state of fog generation.
+- No audio at this time.
+- Shadows do not exist (primarily because of the lighting situation)
+- Debugging is non-existent, but I am currently working on parsing out common errors that would be useful.
 
 ### Disclaimer:
 This is all for loading in one object.
 Using other custom methods, you can use this method to load multiple of the same object simultaneously.
 
-Please don't ask for any bug fixes unless you have any advice on how I could make this a bit better.
+Please don't ask for any bug fixes.
+I would appreciate any advice on how I could improve this.
 This is purely for learning purposes.
