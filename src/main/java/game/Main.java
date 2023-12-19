@@ -119,15 +119,13 @@ public class Main implements IAppLogic {
 
         SceneLights sceneLights = new SceneLights();
         AmbientLight ambientLight = sceneLights.getAmbientLight();
-        ambientLight.setIntensity(0.2f);
+        ambientLight.setIntensity(0.5f);
         ambientLight.setColor(0.3f, 0.3f, 0.3f);
-        sceneLights.getPointLights().add(new PointLight(new Vector3f(1, 1, 1),
-        new Vector3f(0, 0, -1.4f), 1.0f));
 
-        // DirLight dirLight = sceneLights.getDirLight();
-        // dirLight.setPosition(0, 1, 0);
-        // dirLight.setIntensity(1.0f);
-        // scene.setSceneLights(sceneLights);
+        DirLight dirLight = sceneLights.getDirLight();
+        dirLight.setPosition(0, 1, 0);
+        dirLight.setIntensity(1.0f);
+        scene.setSceneLights(sceneLights);
 
         // Skybox over here:
         /*
@@ -142,15 +140,12 @@ public class Main implements IAppLogic {
         // scene.setSkyBox(skyBox);
 
         // Scene builinging everything over here:
-        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.09f), 1f));
+        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 1f));
         // lightControls = new LightControls(scene);
         // scene.setGuiInstance(lightControls);
 
         // Camera shit:
-        Camera camera = scene.getCamera();
-        camera.moveUp(1f);
-        camera.addRotation((float) Math.toRadians(90), 0);
-        lightAngle = -35;
+        scene.getCamera().moveUp(0.1f);
 
         updateTerrain(scene);
         
