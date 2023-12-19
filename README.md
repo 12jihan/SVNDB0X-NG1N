@@ -18,5 +18,9 @@ scene.addEntity(yourEntity);
 
 ```
 
+### Disclaimer:
 This is all for loading in one object.
-You can definitely use this method to load in multiple object at the same time as well.
+Using other custom methods, you can use this method to load multiple of the same object simultaneously.
+
+Please don't ask for any bug fixes unless you have any advice on how I could make this a bit better.
+This is purely for learning purposes.
