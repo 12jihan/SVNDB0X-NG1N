@@ -114,7 +114,7 @@ public class SceneRender {
         uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
         uniformsMap.setUniform("fog.color", fog.getColor());
         uniformsMap.setUniform("fog.density", fog.getDensity());
-
+        
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
         for (Model model : models) {

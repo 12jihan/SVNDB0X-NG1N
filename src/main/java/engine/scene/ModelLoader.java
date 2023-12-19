@@ -34,6 +34,8 @@ public class ModelLoader {
     }
 
     public static Model loadModel(String modelId, String modelPath, TextureCache textureCache, int flags) {
+        System.out.println("Loading Model:\n");
+        System.out.println("Model:\n" + modelId + "\n");
         System.out.println("Loading Texture From File Path/s:\n");
         File file = new File(modelPath);
         System.out.println(file);

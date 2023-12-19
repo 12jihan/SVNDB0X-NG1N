@@ -149,7 +149,7 @@ public class Window {
     }
 
     public static class WindowOptions {
-        public boolean antiAliasing;
+        public boolean antiAliasing = true;
         public boolean compatibleProfile;
         public int fps;
         public int height = 900;
