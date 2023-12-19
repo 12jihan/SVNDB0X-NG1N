@@ -17,7 +17,7 @@ terraEntity.updateModelMatrix();
 scene.addEntity(yourEntity);
 
 ```
-## Currently Broken:
+### Currently Broken:
 - ImGui is currently not working correctly when I load certain instances.
 - Lights still need to be fully fleshed out.
 - Skybox only works with the sample Skybox model from the tutorial.
