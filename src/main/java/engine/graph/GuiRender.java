@@ -25,6 +25,7 @@ import imgui.flag.ImGuiKey;
 import imgui.type.ImInt;
 
 public class GuiRender {
+
     private GuiMesh guiMesh;
     private GLFWKeyCallback prevKeyCallBack;
     private Vector2f scale;
@@ -34,14 +35,42 @@ public class GuiRender {
 
     public GuiRender(Window window) throws Exception {
         List<ShaderProgram.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
-        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
-                "/Users/jareemhoff/dev/java/sandbox/resources/shaders/gui.vert", GL_VERTEX_SHADER));
-        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
-                "/Users/jareemhoff/dev/java/sandbox/resources/shaders/gui.frag", GL_FRAGMENT_SHADER));
+        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("resources/shaders/gui.vert", GL_VERTEX_SHADER));
+        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData("resources/shaders/gui.frag", GL_FRAGMENT_SHADER));
         shaderProgram = new ShaderProgram(shaderModuleDataList);
         createUniforms();
         createUIResources(window);
         setupKeyCallBack(window);
+    }
+
+    public void cleanup() {
+        shaderProgram.cleanup();
+        texture.cleanup();
+        if (prevKeyCallBack != null) {
+            prevKeyCallBack.free();
+        }
+    }
+
+    private void createUIResources(Window window) {
+        ImGui.createContext();
+
+        ImGuiIO imGuiIO = ImGui.getIO();
+        imGuiIO.setIniFilename(null);
+        imGuiIO.setDisplaySize(window.getWidth(), window.getHeight());
+
+        ImFontAtlas fontAtlas = ImGui.getIO().getFonts();
+        ImInt width = new ImInt();
+        ImInt height = new ImInt();
+        ByteBuffer buf = fontAtlas.getTexDataAsRGBA32(width, height);
+        texture = new Texture(width.get(), height.get(), buf);
+
+        guiMesh = new GuiMesh();
+    }
+
+    private void createUniforms() {
+        uniformsMap = new UniformsMap(shaderProgram.getProgramId());
+        uniformsMap.createUniform("scale");
+        scale = new Vector2f();
     }
 
     public void render(Scene scene) {
@@ -91,34 +120,9 @@ public class GuiRender {
         glDisable(GL_BLEND);
     }
 
-    public void cleanup() {
-        shaderProgram.cleanup();
-        texture.cleanup();
-        if (prevKeyCallBack != null) {
-            prevKeyCallBack.free();
-        }
-    }
-
-    private void createUIResources(Window window) {
-        ImGui.createContext();
-
+    public void resize(int width, int height) {
         ImGuiIO imGuiIO = ImGui.getIO();
-        imGuiIO.setIniFilename(null);
-        imGuiIO.setDisplaySize(window.getWidth(), window.getHeight());
-
-        ImFontAtlas fontAtlas = ImGui.getIO().getFonts();
-        ImInt width = new ImInt();
-        ImInt height = new ImInt();
-        ByteBuffer buf = fontAtlas.getTexDataAsRGBA32(width, height);
-        texture = new Texture(width.get(), height.get(), buf);
-
-        guiMesh = new GuiMesh();
-    }
-
-    private void createUniforms() {
-        uniformsMap = new UniformsMap(shaderProgram.getProgramId());
-        uniformsMap.createUniform("scale");
-        scale = new Vector2f();
+        imGuiIO.setDisplaySize(width, height);
     }
 
     private void setupKeyCallBack(Window window) {
@@ -166,10 +170,4 @@ public class GuiRender {
             io.addInputCharacter(c);
         });
     }
-
-    public void resize(int width, int height) {
-        ImGuiIO imGuiIO = ImGui.getIO();
-        imGuiIO.setDisplaySize(width, height);
-    }
-
 }

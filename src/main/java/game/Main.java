@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
@@ -29,6 +30,7 @@ import engine.scene.lights.DirLight;
 import engine.scene.lights.LightControls;
 import engine.scene.lights.PointLight;
 import engine.scene.lights.SceneLights;
+import engine.scene.lights.SpotLight;
 
 /**
  * 
@@ -43,7 +45,9 @@ public class Main implements IAppLogic {
 
     private float lightAngle;
 
-    private static final int NUM_CHUNKS = 4;
+    private static final int NUM_CHUNKS = 3;
+    private Entity cubeEntity;
+    private Entity terraEntity;
     private Entity[][] terrainEntities;
     private LightControls lightControls;
 
@@ -57,43 +61,26 @@ public class Main implements IAppLogic {
 
     @Override
     public void cleanup() {
+        // Nothing done here yet.
     }
 
     @Override
     public void init(Window window, Scene scene, Render render) throws Exception {
+        // Random cube:
+        // Model cubeModel = ModelLoader.loadModel("cube-model",
+        // "/Users/jareemhoff/dev/java/sandbox/resources/textures/cube/cube.obj",
+        // scene.getTextureCache());
+        // scene.addModel(cubeModel);
 
-        // // Left wall:
-        // String wallNoNormalsModelId = "quad-no-normals-model";
-        // Model quadModelNoNormals = ModelLoader.loadModel(wallNoNormalsModelId,
-        //         "/Users/jareemhoff/dev/java/sandbox/resources/textures/wall/wall_nonormals.obj",
-        //         scene.getTextureCache());
-        // scene.addModel(quadModelNoNormals);
+        // cubeEntity = new Entity("cube", cubeModel.getId());
+        // cubeEntity.setPosition(0f, 0f, -2.0f);
+        // cubeEntity.updateModelMatrix();
+        // scene.addEntity(cubeEntity);
 
-        // Entity wallLeftEntity = new Entity("wallLeftEntity", wallNoNormalsModelId);
-        // wallLeftEntity.setPosition(-3f, 1f, 0);
-        // wallLeftEntity.setScale(2.0f);
-        // wallLeftEntity.updateModelMatrix();
-        // scene.addEntity(wallLeftEntity);
-
-
-        // // Right wall:
-        // String wallModelId = "quad-normals-model";
-        // Model wallQuadModel = ModelLoader.loadModel(wallModelId,
-        //         "/Users/jareemhoff/dev/java/sandbox/resources/textures/wall/wall.obj",
-        //         scene.getTextureCache());
-        // scene.addModel(wallQuadModel);
-
-        // Entity wallRightEntity = new Entity("wallRightEntity", wallModelId);
-        // wallRightEntity.setPosition(3f, 1f, 0);
-        // wallRightEntity.setScale(2.0f);
-        // wallRightEntity.updateModelMatrix();
-        // scene.addEntity(wallRightEntity);
-    
-        // Terrain:
         String quadModelId = "quad-model";
-        Model quadModel = ModelLoader.loadModel(quadModelId,
-        "/Users/jareemhoff/dev/java/sandbox/resources/textures/terrain/quad/quad.obj",
-        scene.getTextureCache());
+        Model quadModel = ModelLoader.loadModel("quad-model",
+                "/Users/jareemhoff/dev/java/sandbox/resources/textures/terrain/grass/quad.obj",
+                scene.getTextureCache());
         scene.addModel(quadModel);
 
         // Terrain building over here:
@@ -107,25 +94,13 @@ public class Main implements IAppLogic {
                 scene.addEntity(entity);
             }
         }
-        
 
         // All lights are over here:
-        // SceneLights sceneLights = new SceneLights();
-        // sceneLights.getAmbientLight().setIntensity(0.2f);
-        // DirLight dirLight = sceneLights.getDirLight();
-        // dirLight.setPosition(1, 1, 0);
-        // dirLight.setIntensity(1.0f);
-        // scene.setSceneLights(sceneLights);
-
         SceneLights sceneLights = new SceneLights();
-        AmbientLight ambientLight = sceneLights.getAmbientLight();
-        ambientLight.setIntensity(0.5f);
-        ambientLight.setColor(0.3f, 0.3f, 0.3f);
-
-        DirLight dirLight = sceneLights.getDirLight();
-        dirLight.setPosition(0, 1, 0);
-        dirLight.setIntensity(1.0f);
+        sceneLights.getAmbientLight().setIntensity(0.3f);
         scene.setSceneLights(sceneLights);
+
+        //
 
         // Skybox over here:
         /*
@@ -140,15 +115,13 @@ public class Main implements IAppLogic {
         // scene.setSkyBox(skyBox);
 
         // Scene builinging everything over here:
-        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 1f));
-        // lightControls = new LightControls(scene);
-        // scene.setGuiInstance(lightControls);
+        // scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 1f));
 
         // Camera shit:
+        // scene.getCamera().moveUp(0.1f);
+        // scene.setFog(new Fog(true, new Vector3f(0.05f, 0.01f, 0.9f), 0.55f));
         scene.getCamera().moveUp(0.1f);
-
         updateTerrain(scene);
-        
     }
 
     @Override
@@ -174,16 +147,20 @@ public class Main implements IAppLogic {
         } else if (window.isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
             camera.moveDown(move);
         }
+
+        if (window.isKeyPressed(GLFW_KEY_W) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveForward(move + 2);
+        }
         // if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-        //     lightAngle -= 2.5f;
-        //     if (lightAngle < -90) {
-        //         lightAngle = -90;
-        //     }
+        // lightAngle -= 2.5f;
+        // if (lightAngle < -90) {
+        // lightAngle = -90;
+        // }
         // } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-        //     lightAngle += 2.5f;
-        //     if (lightAngle > 90) {
-        //         lightAngle = 90;
-        //     }
+        // lightAngle += 2.5f;
+        // if (lightAngle > 90) {
+        // lightAngle = 90;
+        // }
         // }
 
         MouseInput mouseInput = window.getMouseInput();
@@ -202,11 +179,11 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        // updateTerrain(scene);
+        updateTerrain(scene);
     }
 
     public void updateTerrain(Scene scene) {
-        int cellSize = 1;
+        int cellSize = 10;
         Camera camera = scene.getCamera();
         Vector3f cameraPos = camera.getPosition();
         int cellCol = (int) (cameraPos.x / cellSize);

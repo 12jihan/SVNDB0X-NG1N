@@ -23,14 +23,14 @@ public class Render {
         // glCullFace(GL_BACK);
 
         sceneRender = new SceneRender();
-        guiRender = new GuiRender(window);
+        // guiRender = new GuiRender(window);
         skyBoxRender = new SkyBoxRender();
 
     }
 
     public void cleanup() {
         sceneRender.cleanup();
-        guiRender.cleanup();
+        // guiRender.cleanup();
         skyBoxRender.cleanup();
     }
 
@@ -40,7 +40,7 @@ public class Render {
 
         skyBoxRender.render(scene);
         sceneRender.render(scene);
-        guiRender.render(scene);
+        // guiRender.render(scene);
     }
 
     public void resize(int width, int height) {

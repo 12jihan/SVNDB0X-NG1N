@@ -152,8 +152,8 @@ public class Window {
         public boolean antiAliasing = true;
         public boolean compatibleProfile;
         public int fps;
-        public int height = 480;
+        public int height = 720;
         public int ups = Engine.TARGET_UPS;
-        public int width = 720;
+        public int width = 1280;
     }
 }

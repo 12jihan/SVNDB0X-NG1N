@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL30.*;
 import imgui.ImDrawData;
 
 public class GuiMesh {
+
     private int indicesVBO;
     private int vaoId;
     private int verticesVBO;
