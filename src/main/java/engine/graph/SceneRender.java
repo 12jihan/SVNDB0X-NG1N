@@ -1,5 +1,6 @@
 package engine.graph;
 
+import engine.scene.AnimationData;
 import engine.scene.Entity;
 import engine.scene.Fog;
 import engine.scene.Scene;
@@ -26,23 +27,21 @@ import org.joml.Vector4f;
 import static org.lwjgl.opengl.GL30.*;
 
 public class SceneRender {
+
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
 
     private ShaderProgram shaderProgram;
     private UniformsMap uniformsMap;
 
-    public SceneRender() {
+    public SceneRender() throws Exception {
         List<ShaderProgram.ShaderModuleData> shaderModuleDataList = new ArrayList<>();
         shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
                 "/Users/jareemhoff/dev/java/sandbox/resources/shaders/Scene.vert", GL_VERTEX_SHADER));
-        shaderModuleDataList.add(new ShaderProgram.ShaderModuleData(
-                "/Users/jareemhoff/dev/java/sandbox/resources/shaders/Scene.frag", GL_FRAGMENT_SHADER));
-        try {
-            shaderProgram = new ShaderProgram(shaderModuleDataList);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        shaderModuleDataList
+                .add(new ShaderProgram.ShaderModuleData(
+                        "/Users/jareemhoff/dev/java/sandbox/resources/shaders/Scene.frag", GL_FRAGMENT_SHADER));
+        shaderProgram = new ShaderProgram(shaderModuleDataList);
         createUniforms();
     }
 
@@ -50,11 +49,12 @@ public class SceneRender {
         shaderProgram.cleanup();
     }
 
-    public void createUniforms() {
+    private void createUniforms() {
         uniformsMap = new UniformsMap(shaderProgram.getProgramId());
         uniformsMap.createUniform("projectionMatrix");
         uniformsMap.createUniform("modelMatrix");
         uniformsMap.createUniform("viewMatrix");
+        uniformsMap.createUniform("bonesMatrices");
         uniformsMap.createUniform("txtSampler");
         uniformsMap.createUniform("normalSampler");
         uniformsMap.createUniform("material.ambient");
@@ -74,7 +74,6 @@ public class SceneRender {
             uniformsMap.createUniform(name + ".att.linear");
             uniformsMap.createUniform(name + ".att.exponent");
         }
-
         for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
             String name = "spotLights[" + i + "]";
             uniformsMap.createUniform(name + ".pl.position");
@@ -114,36 +113,41 @@ public class SceneRender {
         uniformsMap.setUniform("fog.activeFog", fog.isActive() ? 1 : 0);
         uniformsMap.setUniform("fog.color", fog.getColor());
         uniformsMap.setUniform("fog.density", fog.getDensity());
-        
+
         Collection<Model> models = scene.getModelMap().values();
         TextureCache textureCache = scene.getTextureCache();
         for (Model model : models) {
             List<Entity> entities = model.getEntitiesList();
 
             for (Material material : model.getMaterialList()) {
+                Material test = material;
                 uniformsMap.setUniform("material.ambient", material.getAmbientColor());
                 uniformsMap.setUniform("material.diffuse", material.getDiffuseColor());
                 uniformsMap.setUniform("material.specular", material.getSpecularColor());
                 uniformsMap.setUniform("material.reflectance", material.getReflectance());
-                // Normal map path:
                 String normalMapPath = material.getNormalMapPath();
                 boolean hasNormalMapPath = normalMapPath != null;
                 uniformsMap.setUniform("material.hasNormalMap", hasNormalMapPath ? 1 : 0);
-                
-                // Getting the texture:
                 Texture texture = textureCache.getTexture(material.getTexturePath());
                 glActiveTexture(GL_TEXTURE0);
                 texture.bind();
                 if (hasNormalMapPath) {
+                    System.out.println("this is still being called for some reaon.");
                     Texture normalMapTexture = textureCache.getTexture(normalMapPath);
                     glActiveTexture(GL_TEXTURE1);
                     normalMapTexture.bind();
                 }
+
                 for (Mesh mesh : material.getMeshList()) {
                     glBindVertexArray(mesh.getVaoId());
-
                     for (Entity entity : entities) {
                         uniformsMap.setUniform("modelMatrix", entity.getModelMatrix());
+                        AnimationData animationData = entity.getAnimationData();
+                        if (animationData == null) {
+                            uniformsMap.setUniform("bonesMatrices", AnimationData.DEFAULT_BONES_MATRICES);
+                        } else {
+                            uniformsMap.setUniform("bonesMatrices", animationData.getCurrentFrame().boneMatrices());
+                        }
                         glDrawElements(GL_TRIANGLES, mesh.getNumVertices(), GL_UNSIGNED_INT, 0);
                     }
                 }
@@ -153,7 +157,6 @@ public class SceneRender {
         glBindVertexArray(0);
 
         shaderProgram.unbind();
-        glDisable(GL_BLEND);
     }
 
     private void updateLights(Scene scene) {
@@ -203,7 +206,6 @@ public class SceneRender {
         Vector4f aux = new Vector4f();
         Vector3f lightPosition = new Vector3f();
         Vector3f color = new Vector3f();
-
         float intensity = 0.0f;
         float constant = 0.0f;
         float linear = 0.0f;
@@ -241,5 +243,4 @@ public class SceneRender {
         uniformsMap.setUniform(prefix + ".conedir", cutoff);
         updatePointLight(pointLight, prefix + ".pl", viewMatrix);
     }
-
 }

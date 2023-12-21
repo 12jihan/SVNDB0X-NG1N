@@ -13,7 +13,10 @@ public class ShaderProgram {
     
     public ShaderProgram(List<ShaderModuleData> shaderModuleDataList) throws Exception {
         programId = glCreateProgram();
-        System.out.println("programId:\n" + programId);
+        // System.out.println("\nprogramId:");
+        // System.out.println(programId);
+        // System.out.println(shaderModuleDataList);
+        // System.out.println("\n");
         if (programId == 0) {
             throw new Exception("Could not create Shader");
         }

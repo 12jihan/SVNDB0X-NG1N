@@ -1,12 +1,10 @@
 package engine.graph;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
-
 import org.lwjgl.opengl.GL;
-
 import engine.Window;
 import engine.scene.Scene;
+
+import static org.lwjgl.opengl.GL13.*;
 
 public class Render {
 
@@ -21,16 +19,17 @@ public class Render {
         glEnable(GL_DEPTH_TEST);
         // glEnable(GL_CULL_FACE);
         // glCullFace(GL_BACK);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         sceneRender = new SceneRender();
-        // guiRender = new GuiRender(window);
+        guiRender = new GuiRender(window);
         skyBoxRender = new SkyBoxRender();
 
     }
 
     public void cleanup() {
         sceneRender.cleanup();
-        // guiRender.cleanup();
+        guiRender.cleanup();
         skyBoxRender.cleanup();
     }
 
@@ -40,7 +39,7 @@ public class Render {
 
         skyBoxRender.render(scene);
         sceneRender.render(scene);
-        // guiRender.render(scene);
+        guiRender.render(scene);
     }
 
     public void resize(int width, int height) {

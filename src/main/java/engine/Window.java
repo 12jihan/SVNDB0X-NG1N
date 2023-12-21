@@ -5,26 +5,23 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.util.concurrent.Callable;
 import org.pmw.tinylog.Logger;
 
 public class Window {
-    
+
     private static final boolean SYSCHECK = System.getProperty("os.name").contains("Mac");
     private final long windowHandle;
-    private int width, height;
-    private Callable<Void> resizeFunc;
+    private int height;
+    private int width;
     private MouseInput mouseInput;
-
+    private Callable<Void> resizeFunc;
 
     public Window(String title, WindowOptions opts, Callable<Void> resizeFunc) {
-        
         this.resizeFunc = resizeFunc;
-
         if (!glfwInit())
             throw new IllegalStateException("Unable to initialize GLFW!");
 
@@ -44,7 +41,7 @@ public class Window {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         }
-        
+
         // Maximize Window Conditional Statement:
         if (opts.width > 0 && opts.height > 0) {
             this.width = opts.width;
@@ -84,6 +81,8 @@ public class Window {
         glfwGetFramebufferSize(windowHandle, arrWidth, arrHeight);
         width = arrWidth[0];
         height = arrHeight[0];
+
+        mouseInput = new MouseInput(windowHandle);
     }
 
     public void cleanup() {
@@ -149,11 +148,11 @@ public class Window {
     }
 
     public static class WindowOptions {
-        public boolean antiAliasing = true;
+        public boolean antiAliasing;
         public boolean compatibleProfile;
         public int fps;
-        public int height = 720;
+        public int height;
         public int ups = Engine.TARGET_UPS;
-        public int width = 1280;
+        public int width;
     }
 }

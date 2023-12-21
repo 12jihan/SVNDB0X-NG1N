@@ -1,14 +1,6 @@
 package game;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.*;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -19,6 +11,7 @@ import engine.MouseInput;
 import engine.Window;
 import engine.graph.Model;
 import engine.graph.Render;
+import engine.scene.AnimationData;
 import engine.scene.Camera;
 import engine.scene.Entity;
 import engine.scene.Fog;
@@ -27,10 +20,7 @@ import engine.scene.Scene;
 import engine.scene.SkyBox;
 import engine.scene.lights.AmbientLight;
 import engine.scene.lights.DirLight;
-import engine.scene.lights.LightControls;
-import engine.scene.lights.PointLight;
 import engine.scene.lights.SceneLights;
-import engine.scene.lights.SpotLight;
 
 /**
  * 
@@ -42,20 +32,19 @@ public class Main implements IAppLogic {
 
     private static final float MOUSE_SENSITIVITY = 0.1f;
     private static final float MOVEMENT_SPEED = 0.005f;
-
     private float lightAngle;
 
     private static final int NUM_CHUNKS = 3;
-    private Entity cubeEntity;
-    private Entity terraEntity;
     private Entity[][] terrainEntities;
-    private LightControls lightControls;
-
-    // private Entity[][] terrainEntities;
+    private AnimationData animationData;
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
-        Engine gameEng = new Engine("SVNDB0X NGIN", new Window.WindowOptions(), main);
+        Window.WindowOptions opts = new Window.WindowOptions();
+        opts.antiAliasing = true;
+        opts.height = 720;
+        opts.width = 1280;
+        Engine gameEng = new Engine("SVNDB0X NGIN", opts, main);
         gameEng.start();
     }
 
@@ -66,62 +55,51 @@ public class Main implements IAppLogic {
 
     @Override
     public void init(Window window, Scene scene, Render render) throws Exception {
-        // Random cube:
-        // Model cubeModel = ModelLoader.loadModel("cube-model",
-        // "/Users/jareemhoff/dev/java/sandbox/resources/textures/cube/cube.obj",
-        // scene.getTextureCache());
-        // scene.addModel(cubeModel);
+        String terrainModelId = "terrain";
+        Model terrainModel = ModelLoader.loadModel(terrainModelId,
+                "/Users/jareemhoff/dev/java/sandbox/resources/models/terrain/terrain.obj",
+                scene.getTextureCache(), false);
+        scene.addModel(terrainModel);
+        Entity terrainEntity = new Entity("terrainEntity", terrainModelId);
+        terrainEntity.setScale(100.0f);
+        terrainEntity.updateModelMatrix();
+        scene.addEntity(terrainEntity);
 
-        // cubeEntity = new Entity("cube", cubeModel.getId());
-        // cubeEntity.setPosition(0f, 0f, -2.0f);
-        // cubeEntity.updateModelMatrix();
-        // scene.addEntity(cubeEntity);
+        String bobModelId = "bobModel";
+        Model bobModel = ModelLoader.loadModel(bobModelId,
+                "/Users/jareemhoff/dev/java/sandbox/resources/models/xbot/Jogging 3.dae",
+                scene.getTextureCache(), true);
+        scene.addModel(bobModel);
+        Entity bobEntity = new Entity("bobEntity", bobModelId);
+        bobEntity.setScale(1);
+        bobEntity.updateModelMatrix();
+        animationData = new AnimationData(bobModel.getAnimationList().get(0));
+        bobEntity.setAnimationData(animationData);
+        scene.addEntity(bobEntity);
 
-        String quadModelId = "quad-model";
-        Model quadModel = ModelLoader.loadModel("quad-model",
-                "/Users/jareemhoff/dev/java/sandbox/resources/textures/terrain/grass/quad.obj",
-                scene.getTextureCache());
-        scene.addModel(quadModel);
-
-        // Terrain building over here:
-        int numRows = NUM_CHUNKS * 2 + 1;
-        int numCols = numRows;
-        terrainEntities = new Entity[numRows][numCols];
-        for (int j = 0; j < numRows; j++) {
-            for (int i = 0; i < numCols; i++) {
-                Entity entity = new Entity("TERRAIN_" + j + "_" + i, quadModelId);
-                terrainEntities[j][i] = entity;
-                scene.addEntity(entity);
-            }
-        }
-
-        // All lights are over here:
         SceneLights sceneLights = new SceneLights();
-        sceneLights.getAmbientLight().setIntensity(0.3f);
+        AmbientLight ambientLight = sceneLights.getAmbientLight();
+        ambientLight.setIntensity(0.5f);
+        ambientLight.setColor(0.3f, 0.3f, 0.3f);
+
+        DirLight dirLight = sceneLights.getDirLight();
+        dirLight.setPosition(0, 1, 0);
+        dirLight.setIntensity(1.0f);
         scene.setSceneLights(sceneLights);
 
-        //
+        SkyBox skyBox = new SkyBox("/Users/jareemhoff/dev/java/sandbox/resources/models/skybox/skybox.obj",
+                scene.getTextureCache());
+        skyBox.getSkyBoxEntity().setScale(100);
+        skyBox.getSkyBoxEntity().updateModelMatrix();
+        scene.setSkyBox(skyBox);
 
-        // Skybox over here:
-        /*
-         * @TODO: Skybox is not working properly. It is not rendering the skybox when I
-         * change to different
-         * textures.
-         */
-        // SkyBox skyBox = new
-        // SkyBox("/Users/jareemhoff/dev/java/sandbox/resources/textures/skybox/skybox.obj",
-        // scene.getTextureCache());
-        // skyBox.getSkyBoxEntity().setScale(50);
-        // scene.setSkyBox(skyBox);
+        scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 0.02f));
 
-        // Scene builinging everything over here:
-        // scene.setFog(new Fog(true, new Vector3f(0.5f, 0.5f, 0.5f), 1f));
-
-        // Camera shit:
-        // scene.getCamera().moveUp(0.1f);
-        // scene.setFog(new Fog(true, new Vector3f(0.05f, 0.01f, 0.9f), 0.55f));
-        scene.getCamera().moveUp(0.1f);
-        updateTerrain(scene);
+        Camera camera = scene.getCamera();
+        camera.setPosition(0f, 1.0f, 2f);
+        // camera.addRotation((float) Math.toRadians(15.0f), (float) Math.toRadians(390.f));
+        
+        lightAngle = 0;
     }
 
     @Override
@@ -132,6 +110,7 @@ public class Main implements IAppLogic {
         float move = diffTimeMillis * MOVEMENT_SPEED;
         Camera camera = scene.getCamera();
 
+        // Move when key is pressed:
         if (window.isKeyPressed(GLFW_KEY_W)) {
             camera.moveForward(move);
         } else if (window.isKeyPressed(GLFW_KEY_S)) {
@@ -148,20 +127,32 @@ public class Main implements IAppLogic {
             camera.moveDown(move);
         }
 
+        // Move faster when shift is pressed:
         if (window.isKeyPressed(GLFW_KEY_W) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
             camera.moveForward(move + 2);
+        } else if (window.isKeyPressed(GLFW_KEY_S) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveBackwards(move + 2);
+        } else if (window.isKeyPressed(GLFW_KEY_A) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveLeft(move + 2);
+        } else if (window.isKeyPressed(GLFW_KEY_D) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveRight(move + 2);
+        } else if (window.isKeyPressed(GLFW_KEY_SPACE) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveUp(move + 2);
+        } else if (window.isKeyPressed(GLFW_KEY_LEFT_CONTROL) && window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+            camera.moveDown(move + 2);
         }
-        // if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-        // lightAngle -= 2.5f;
-        // if (lightAngle < -90) {
-        // lightAngle = -90;
-        // }
-        // } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-        // lightAngle += 2.5f;
-        // if (lightAngle > 90) {
-        // lightAngle = 90;
-        // }
-        // }
+
+        if (window.isKeyPressed(GLFW_KEY_LEFT)) {
+            lightAngle -= 2.5f;
+            if (lightAngle < -90) {
+                lightAngle = -90;
+            }
+        } else if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
+            lightAngle += 2.5f;
+            if (lightAngle > 90) {
+                lightAngle = 90;
+            }
+        }
 
         MouseInput mouseInput = window.getMouseInput();
         if (mouseInput.isRightButtonPressed()) {
@@ -170,39 +161,38 @@ public class Main implements IAppLogic {
                     (float) Math.toRadians(-displVec.y * MOUSE_SENSITIVITY));
         }
 
-        // SceneLights sceneLights = scene.getSceneLights();
-        // DirLight dirLight = sceneLights.getDirLight();
-        // double angRad = Math.toRadians(lightAngle);
-        // dirLight.getDirection().x = (float) Math.sin(angRad);
-        // dirLight.getDirection().y = (float) Math.cos(angRad);
+        SceneLights sceneLights = scene.getSceneLights();
+        DirLight dirLight = sceneLights.getDirLight();
+        double angRad = Math.toRadians(lightAngle);
+        dirLight.getDirection().z = (float) Math.sin(angRad);
+        dirLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        updateTerrain(scene);
+        // animationData.nextFrame();
     }
 
-    public void updateTerrain(Scene scene) {
-        int cellSize = 10;
-        Camera camera = scene.getCamera();
-        Vector3f cameraPos = camera.getPosition();
-        int cellCol = (int) (cameraPos.x / cellSize);
-        int cellRow = (int) (cameraPos.z / cellSize);
-
-        int numRows = NUM_CHUNKS * 2 + 1;
-        int numCols = numRows;
-        int zOffset = -NUM_CHUNKS;
-        float scale = cellSize / 2.0f;
-        for (int j = 0; j < numRows; j++) {
-            int xOffset = -NUM_CHUNKS;
-            for (int i = 0; i < numCols; i++) {
-                Entity entity = terrainEntities[j][i];
-                entity.setScale(scale);
-                entity.setPosition((cellCol + xOffset) * 2.0f, 0, (cellRow + zOffset) * 2.0f);
-                entity.getModelMatrix().identity().scale(scale).translate(entity.getPosition());
-                xOffset++;
-            }
-            zOffset++;
-        }
-    }
+    // public void updateTerrain(Scene scene) {
+    //     int cellSize = 10;
+    //     Camera camera = scene.getCamera();
+    //     Vector3f cameraPos = camera.getPosition();
+    //     int cellCol = (int) (cameraPos.x / cellSize);
+    //     int cellRow = (int) (cameraPos.z / cellSize);
+    //     int numRows = NUM_CHUNKS * 2 + 1;
+    //     int numCols = numRows;
+    //     int zOffset = -NUM_CHUNKS;
+    //     float scale = cellSize / 2.0f;
+    //     for (int j = 0; j < numRows; j++) {
+    //         int xOffset = -NUM_CHUNKS;
+    //         for (int i = 0; i < numCols; i++) {
+    //             Entity entity = terrainEntities[j][i];
+    //             entity.setScale(scale);
+    //             entity.setPosition((cellCol + xOffset) * 2.0f, 0, (cellRow + zOffset) * 2.0f);
+    //             entity.getModelMatrix().identity().scale(scale).translate(entity.getPosition());
+    //             xOffset++;
+    //         }
+    //         zOffset++;
+    //     }
+    // }
 }

@@ -10,13 +10,13 @@ import java.util.*;
 public class Scene {
 
     private Camera camera;
+    private Fog fog;
     private IGuiInstance guiInstance;
     private Map<String, Model> modelMap;
     private Projection projection;
-    private TextureCache textureCache;
     private SceneLights sceneLights;
     private SkyBox skyBox;
-    private Fog fog;
+    private TextureCache textureCache;
 
     public Scene(int width, int height) {
         modelMap = new HashMap<>();

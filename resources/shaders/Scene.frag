@@ -4,10 +4,10 @@ const int MAX_POINT_LIGHTS = 5;
 const int MAX_SPOT_LIGHTS = 5;
 const float SPECULAR_POWER = 10;
 
-in vec3 outTangent;
-in vec3 outBitangent;
 in vec3 outPosition;
 in vec3 outNormal;
+in vec3 outTangent;
+in vec3 outBitangent;
 in vec2 outTextCoord;
 
 out vec4 fragColor;
@@ -56,21 +56,20 @@ struct Fog
     float density;
 };
 
-uniform sampler2D normalSampler;
 uniform sampler2D txtSampler;
+uniform sampler2D normalSampler;
 uniform Material material;
+// material.specular = vec4(0.5, 0.5, 0.5, 1);
 uniform AmbientLight ambientLight;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform DirLight dirLight;
 uniform Fog fog;
 
-// Calculation of the Ambient Light.
 vec4 calcAmbient(AmbientLight ambientLight, vec4 ambient) {
     return vec4(ambientLight.factor * ambientLight.color, 1) * ambient;
 }
 
-// Calculation of the Light Color.
 vec4 calcLightColor(vec4 diffuse, vec4 specular, vec3 lightColor, float light_intensity, vec3 position, vec3 to_light_dir, vec3 normal) {
     vec4 diffuseColor = vec4(0, 0, 0, 1);
     vec4 specColor = vec4(0, 0, 0, 1);
@@ -90,7 +89,6 @@ vec4 calcLightColor(vec4 diffuse, vec4 specular, vec3 lightColor, float light_in
     return (diffuseColor + specColor);
 }
 
-// Calculation of the Point Light.
 vec4 calcPointLight(vec4 diffuse, vec4 specular, PointLight light, vec3 position, vec3 normal) {
     vec3 light_direction = light.position - position;
     vec3 to_light_dir  = normalize(light_direction);
@@ -103,7 +101,6 @@ vec4 calcPointLight(vec4 diffuse, vec4 specular, PointLight light, vec3 position
     return light_color / attenuationInv;
 }
 
-// Calculation of the Spot Light.
 vec4 calcSpotLight(vec4 diffuse, vec4 specular, SpotLight light, vec3 position, vec3 normal) {
     vec3 light_direction = light.pl.position - position;
     vec3 to_light_dir  = normalize(light_direction);
@@ -120,12 +117,10 @@ vec4 calcSpotLight(vec4 diffuse, vec4 specular, SpotLight light, vec3 position, 
     return color;
 }
 
-// Calculation of the Directional Light.
 vec4 calcDirLight(vec4 diffuse, vec4 specular, DirLight light, vec3 position, vec3 normal) {
     return calcLightColor(diffuse, specular, light.color, light.intensity, position, normalize(light.direction), normal);
 }
 
-// Calculation of the Fog.
 vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirLight dirLight) {
     vec3 fogColor = fog.color * (ambientLight + dirLight.color * dirLight.intensity);
     float distance = length(pos);
@@ -136,7 +131,6 @@ vec4 calcFog(vec3 pos, vec4 color, Fog fog, vec3 ambientLight, DirLight dirLight
     return vec4(resultColor.xyz, color.w);
 }
 
-// Calculation of the Normal.
 vec3 calcNormal(vec3 normal, vec3 tangent, vec3 bitangent, vec2 textCoords) {
     mat3 TBN = mat3(tangent, bitangent, normal);
     vec3 newNormal = texture(normalSampler, textCoords).rgb;
@@ -145,33 +139,32 @@ vec3 calcNormal(vec3 normal, vec3 tangent, vec3 bitangent, vec2 textCoords) {
     return newNormal;
 }
 
-void main()
-{
+void main() {
     vec4 text_color = texture(txtSampler, outTextCoord);
     vec4 ambient = calcAmbient(ambientLight, text_color + material.ambient);
     vec4 diffuse = text_color + material.diffuse;
     vec4 specular = text_color + material.specular;
-    
+
     vec3 normal = outNormal;
     if (material.hasNormalMap > 0) {
         normal = calcNormal(outNormal, outTangent, outBitangent, outTextCoord);
     }
 
     vec4 diffuseSpecularComp = calcDirLight(diffuse, specular, dirLight, outPosition, normal);
-    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+
+    for (int i=0; i<MAX_POINT_LIGHTS; i++) {
         if (pointLights[i].intensity > 0) {
             diffuseSpecularComp += calcPointLight(diffuse, specular, pointLights[i], outPosition, normal);
         }
     }
 
-    for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
+    for (int i=0; i<MAX_SPOT_LIGHTS; i++) {
         if (spotLights[i].pl.intensity > 0) {
             diffuseSpecularComp += calcSpotLight(diffuse, specular, spotLights[i], outPosition, normal);
         }
     }
-
     fragColor = ambient + diffuseSpecularComp;
-    
+
     if (fog.activeFog == 1) {
         fragColor = calcFog(outPosition, fragColor, fog, ambientLight.color, dirLight);
     }

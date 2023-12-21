@@ -6,6 +6,7 @@ public class Entity {
 
     private final String id;
     private final String modelId;
+    private AnimationData animationData;
     private Matrix4f modelMatrix;
     private Vector3f position;
     private Quaternionf rotation;
@@ -20,6 +21,10 @@ public class Entity {
         scale = 1;
     }
 
+    public AnimationData getAnimationData() {
+        return animationData;
+    }
+
     public String getId() {
         return id;
     }
@@ -31,19 +36,23 @@ public class Entity {
     public Matrix4f getModelMatrix() {
         return modelMatrix;
     }
-
+    
     public Vector3f getPosition() {
         return position;
     }
-
+    
     public Quaternionf getRotation() {
         return rotation;
     }
-
+    
     public float getScale() {
         return scale;
     }
-
+    
+    public void setAnimationData(AnimationData animationData) {
+        this.animationData = animationData;
+    }
+    
     public final void setPosition(float x, float y, float z) {
         position.x = x;
         position.y = y;
@@ -51,7 +60,7 @@ public class Entity {
     }
 
     public void setRotation(float x, float y, float z, float angle) {
-        this.rotation.fromAxisAngleRad( x, y, z, angle);
+        this.rotation.fromAxisAngleRad(x, y, z, angle);
     }
 
     public void setScale(float scale) {
