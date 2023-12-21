@@ -67,7 +67,7 @@ public class Main implements IAppLogic {
 
         String bobModelId = "bobModel";
         Model bobModel = ModelLoader.loadModel(bobModelId,
-                "/Users/jareemhoff/dev/java/sandbox/resources/models/xbot/Jogging 3.dae",
+                "/Users/jareemhoff/dev/java/sandbox/resources/models/xbot/sample.dae",
                 scene.getTextureCache(), true);
         scene.addModel(bobModel);
         Entity bobEntity = new Entity("bobEntity", bobModelId);
@@ -170,7 +170,7 @@ public class Main implements IAppLogic {
 
     @Override
     public void update(Window window, Scene scene, long diffTimeMillis) {
-        // animationData.nextFrame();
+        animationData.nextFrame();
     }
 
     // public void updateTerrain(Scene scene) {
